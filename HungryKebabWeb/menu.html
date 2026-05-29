@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu · Hungry Kebab Cambridge</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C96A;
+      --gold-dark: #9A7A2E;
+      --black: #0D0D0D;
+      --black-soft: #1A1A1A;
+      --black-card: #222222;
+      --black-border: #2E2E2E;
+      --cream: #F5F0E8;
+      --text-muted: #888;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--black);
+      color: var(--cream);
+      overflow-x: clip;
+    }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 2.5rem;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--black-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--cream);
+      letter-spacing: 0.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links a.active { color: var(--gold); }
+    .nav-order-btn {
+      background: var(--gold) !important;
+      color: var(--black) !important;
+      padding: 0.5rem 1.2rem;
+      border-radius: 4px;
+    }
+    .nav-order-btn:hover { background: var(--gold-light) !important; }
+
+    .hamburger { display: none; background: none; border: none; cursor: pointer; }
+    .hamburger i { color: var(--gold); font-size: 1.4rem; }
+
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      background: var(--black-soft);
+      padding: 1rem 2rem 1.5rem;
+      border-bottom: 1px solid var(--black-border);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--black-border);
+      transition: color 0.2s;
+    }
+    .mobile-nav a:hover { color: var(--gold); }
+    .mobile-nav a:last-child {
+      color: var(--black);
+      background: var(--gold);
+      text-align: center;
+      border-radius: 4px;
+      border: none;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      position: relative;
+      padding: 5rem 2.5rem 4rem;
+      overflow: hidden;
+      background: var(--black-soft);
+      border-bottom: 1px solid var(--black-border);
+    }
+
+    /* Grain texture overlay */
+    .page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.06'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* Moody radial glow */
+    .page-header::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(201,168,76,0.07) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-header-content { position: relative; z-index: 1; }
+
+    .page-header p {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.75rem;
+    }
+
+    .page-header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.4rem, 5vw, 3.8rem);
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 1rem;
+    }
+    .page-header h1 em { font-style: italic; color: var(--gold); }
+
+    .page-header-sub {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      max-width: 480px;
+      line-height: 1.7;
+    }
+
+    /* Animated rain lines */
+    .rain-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.12;
+    }
+
+    /* ── TABS ── */
+    .tabs-wrapper {
+      background: rgba(13,13,13,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--black-border);
+      position: sticky;
+      top: 65px;
+      z-index: 90;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .tabs-wrapper::-webkit-scrollbar { display: none; }
+
+    .tabs {
+      display: flex;
+      min-width: max-content;
+      padding: 0 2.5rem;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 1rem 1.2rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s, text-shadow 0.2s;
+      position: relative;
+    }
+    .tab-btn:hover { color: var(--cream); }
+    .tab-btn.active {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+      text-shadow: 0 0 12px rgba(201,168,76,0.6);
+    }
+
+    /* ── MENU CONTENT ── */
+    .menu-section {
+      padding: 3rem 2.5rem;
+      display: none;
+    }
+    .menu-section.active { display: block; }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Staggered fade in for cards */
+    .menu-item {
+      background: var(--black-card);
+      border: 1px solid var(--black-border);
+      border-radius: 10px;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: none;
+    }
+
+    .menu-item.show {
+      animation: cardIn 0.4s ease forwards;
+    }
+
+    @keyframes cardIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .menu-item:hover {
+      border-color: var(--gold-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .menu-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+
+    .menu-item h3 {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+
+    .menu-item-price {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--gold);
+      white-space: nowrap;
+      flex-shrink: 0;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .menu-item p {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    .menu-item-badges {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      margin-top: 0.2rem;
+    }
+
+    .badge {
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 0.15rem 0.5rem;
+      border-radius: 2px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .badge-popular { background: var(--gold); color: var(--black); }
+    .badge-veggie { background: #2d5a27; color: #a8d4a0; }
+    .badge-halal { background: #1a3a2a; color: #6dbf8a; }
+
+    /* Deal cards */
+    .deal-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .deal-item {
+      background: var(--black-card);
+      border: 1px solid var(--black-border);
+      border-radius: 10px;
+      padding: 1.1rem;
+      transition: border-color 0.25s, transform 0.25s;
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    .deal-item.show { animation: cardIn 0.4s ease forwards; }
+    .deal-item:hover { border-color: var(--gold-dark); transform: translateY(-2px); }
+
+    .deal-item h3 { font-size: 0.95rem; font-weight: 500; color: var(--cream); margin-bottom: 0.3rem; }
+    .deal-item p { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.6rem; line-height: 1.4; }
+
+    .deal-pricing { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .deal-price {
+      font-weight: 500;
+      font-size: 1rem;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+    .deal-original { font-size: 0.78rem; color: #555; text-decoration: line-through; }
+    .deal-badge { background: var(--gold); color: var(--black); font-size: 0.68rem; font-weight: 500; padding: 0.15rem 0.45rem; border-radius: 2px; }
+
+    /* ── LATE NIGHT STRIP ── */
+    .latenight-strip {
+      background: var(--black);
+      border-top: 1px solid var(--black-border);
+      border-bottom: 1px solid var(--black-border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      flex-wrap: wrap;
+      text-align: center;
+    }
+
+    .latenight-strip p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+    }
+
+    .latenight-strip p em {
+      color: var(--gold);
+      font-style: italic;
+      text-shadow: 0 0 16px rgba(201,168,76,0.4);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--black-border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--cream); text-decoration: none; }
+    .footer-logo span { color: var(--gold); }
+    .footer-socials { display: flex; gap: 1rem; }
+    .footer-socials a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+    .footer-socials a:hover { color: var(--gold); }
+    footer p { color: #444; font-size: 0.85rem; }
+
+    /* ── FLOATING ORDER BTN ── */
+    .float-order {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.9rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-decoration: none;
+      box-shadow: 0 4px 24px rgba(201,168,76,0.35);
+      animation: floatPulse 2.5s ease-in-out infinite;
+    }
+    @keyframes floatPulse {
+      0%,100% { box-shadow: 0 4px 24px rgba(201,168,76,0.35); }
+      50% { box-shadow: 0 4px 36px rgba(201,168,76,0.6); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .page-header { padding: 3rem 1.5rem; }
+      .tabs { padding: 0 1rem; }
+      .menu-section { padding: 2rem 1.5rem; }
+      footer { flex-direction: column; text-align: center; padding: 2rem 1.5rem; }
+      .float-order { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="float-order">🔥 Order Now</a>
+
+  <nav>
+    <a href="index.html" class="nav-logo"><img src="logo.png" alt="Hungry Kebab logo" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="menu.html" class="active">Menu</a></li>
+      <li><a href="index.html#find-us">Find Us</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="#">Login</a></li>
+      <li><a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="nav-order-btn">Order Now</a></li>
+    </ul>
+    <button class="hamburger" onclick="toggleNav()"><i class="ti ti-menu-2"></i></button>
+  </nav>
+
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html">Home</a>
+    <a href="menu.html">Menu</a>
+    <a href="index.html#find-us">Find Us</a>
+    <a href="about.html">About Us</a>
+    <a href="events.html">Events</a>
+    <a href="#">Login</a>
+    <a href="https://order.netroneats.com/home?companyId=18" target="_blank">Order Now</a>
+  </div>
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <canvas class="rain-canvas" id="rainCanvas"></canvas>
+    <div class="page-header-content">
+      <p>Our Menu</p>
+      <h1>It's late.<br><em>You're hungry.</em><br>We've got you.</h1>
+      <p class="page-header-sub">Fresh off the grill, every night from 4PM till midnight. Authentic Turkish flavours, Cambridge's best kept secret.</p>
+    </div>
+  </div>
+
+  <!-- LATE NIGHT STRIP -->
+  <div class="latenight-strip">
+    <p>Open <em>every night</em> · 4PM – Midnight · Davy Road, Cambridge · <em>No regrets.</em></p>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-wrapper">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('deals', this)">✨ Meal Deals</button>
+      <button class="tab-btn" onclick="showTab('kebabs', this)">🥙 Kebabs</button>
+      <button class="tab-btn" onclick="showTab('wraps', this)">🌯 Wraps</button>
+      <button class="tab-btn" onclick="showTab('burgers', this)">🍔 Burgers</button>
+      <button class="tab-btn" onclick="showTab('salads', this)">🥗 Salads</button>
+      <button class="tab-btn" onclick="showTab('sides', this)">🍟 Sides</button>
+      <button class="tab-btn" onclick="showTab('desserts', this)">🍰 Desserts</button>
+      <button class="tab-btn" onclick="showTab('drinks', this)">🥤 Drinks</button>
+      <button class="tab-btn" onclick="showTab('kids', this)">🧸 Kids Meals</button>
+      <button class="tab-btn" onclick="showTab('omelette', this)">🍳 Omelette</button>
+      <button class="tab-btn" onclick="showTab('loaded', this)">🍟 Loaded Fries</button>
+      <button class="tab-btn" onclick="showTab('wings', this)">🍗 Spicy Wings</button>
+    </div>
+  </div>
+
+  <!-- MEAL DEALS -->
+  <div class="menu-section active" id="tab-deals">
+    <div class="deal-grid">
+      <div class="deal-item"><h3>Deal 1</h3><p>Medium Lamb Doner, chips and drink</p><div class="deal-pricing"><span class="deal-price">£16.79</span><span class="deal-original">£20.99</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 2 ⭐ Most Popular</h3><p>Large Lamb Doner, chips and a drink</p><div class="deal-pricing"><span class="deal-price">£18.39</span><span class="deal-original">£22.99</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 3</h3><p>1/4 burger, chips and drink</p><div class="deal-pricing"><span class="deal-price">£15.19</span><span class="deal-original">£18.99</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 4</h3><p>Chicken burger, chips and drink</p><div class="deal-pricing"><span class="deal-price">£15.99</span><span class="deal-original">£19.99</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 5</h3><p>Medium Chicken Shish, chips and drink</p><div class="deal-pricing"><span class="deal-price">£15.19</span><span class="deal-original">£18.99</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 6</h3><p>5 Chicken Wings, chips and drink</p><div class="deal-pricing"><span class="deal-price">£13.19</span><span class="deal-original">£16.49</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 7</h3><p>Sucuk Cheese in Pitta, chips and drink</p><div class="deal-pricing"><span class="deal-price">£12.39</span><span class="deal-original">£15.49</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 8</h3><p>Doner in a bun, chips and drink</p><div class="deal-pricing"><span class="deal-price">£12.79</span><span class="deal-original">£15.99</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 9</h3><p>Chicken shish in a bun, chips and drink</p><div class="deal-pricing"><span class="deal-price">£13.59</span><span class="deal-original">£16.99</span><span class="deal-badge">20% off</span></div></div>
+      <div class="deal-item"><h3>Deal 10</h3><p>Doner wrap, chips and drink</p><div class="deal-pricing"><span class="deal-price">£15.19</span><span class="deal-original">£18.99</span><span class="deal-badge">20% off</span></div></div>
+    </div>
+  </div>
+
+  <!-- KEBABS -->
+  <div class="menu-section" id="tab-kebabs">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Lamb Doner</h3><span class="menu-item-price">£11.99</span></div><p>Served with pitta bread, sauce and salad</p><div class="menu-item-badges"><span class="badge badge-popular">Highly Rated</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Meat and Chips</h3><span class="menu-item-price">£12.99</span></div><p>Doner meat and chips with sauce and salad</p><div class="menu-item-badges"><span class="badge badge-popular">Highly Rated</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Shish and Lamb Doner</h3><span class="menu-item-price">£14.99</span></div><p>Served with pitta bread, sauce and salad</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Shish</h3><span class="menu-item-price">£13.99</span></div><p>Served with pitta bread, sauce and salad</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Doner Meat, Chicken Shish and Chips</h3><span class="menu-item-price">£14.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Lamb Doner, Chicken Shish and Köfte</h3><span class="menu-item-price">£16.99</span></div><p>Large — lamb doner, chicken shish and homemade köfte</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken and Chips</h3><span class="menu-item-price">£13.99</span></div><p>With sauce and salad</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Combination Kebab</h3><span class="menu-item-price">£15.49</span></div><p>Lamb shish and chicken shish, pitta bread, sauce and salad</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Hungry Feast</h3><span class="menu-item-price">£49.99</span></div><p>Lamb Doner, Chicken Shish, Lamb Shish, Köfte, Sucuk, Chips, Pitta and 1.5L Coke — serves 3/4</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Köfte</h3><span class="menu-item-price">£10.99</span></div><p>Homemade köfte, pitta bread, sauce and salad</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Halloumi Kebab</h3><span class="menu-item-price">£8.99</span></div><p>Served with salad and sauce of your choice</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Falafel Kebab</h3><span class="menu-item-price">£10.99</span></div><p>Served with sauce and salad of your choice</p></div>
+    </div>
+  </div>
+
+  <!-- WRAPS -->
+  <div class="menu-section" id="tab-wraps">
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">All served with salad and sauce.</p>
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Lamb Doner Wrap</h3><span class="menu-item-price">£11.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Shish and Doner Wrap</h3><span class="menu-item-price">£12.00</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Shish Wrap</h3><span class="menu-item-price">£12.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Lahmacun with Doner Wrap</h3><span class="menu-item-price">£13.99</span></div><p>Homemade Lahmacun with Doner</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Lahmacun Wrap</h3><span class="menu-item-price">£9.99</span></div><p>Homemade Lahmacun Wrap</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken and Halloumi Wrap</h3><span class="menu-item-price">£12.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken and Lamb Shish Wrap</h3><span class="menu-item-price">£14.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Falafel and Halloumi Wrap</h3><span class="menu-item-price">£9.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Fried Chicken Wrap</h3><span class="menu-item-price">£11.49</span></div><p>Southern fried</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Köfte and Cheddar Cheese Wrap</h3><span class="menu-item-price">£10.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Grilled Halloumi Wrap</h3><span class="menu-item-price">£8.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Turkey Bacon and Sucuk Wrap</h3><span class="menu-item-price">£7.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chips in a Wrap</h3><span class="menu-item-price">£6.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Köfte Wrap</h3><span class="menu-item-price">£9.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Falafel Wrap</h3><span class="menu-item-price">£9.49</span></div><div class="menu-item-badges"><span class="badge badge-veggie">Vegetarian</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Sucuk and Halloumi Wrap</h3><span class="menu-item-price">£10.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Avocado Wrap</h3><span class="menu-item-price">£11.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Falafel and Hummus Wrap</h3><span class="menu-item-price">£9.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Lahmacun with Chicken Shish</h3><span class="menu-item-price">£14.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Köfte and Chicken Shish Wrap</h3><span class="menu-item-price">£10.99</span></div></div>
+    </div>
+  </div>
+
+  <!-- BURGERS -->
+  <div class="menu-section" id="tab-burgers">
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">All served with salad and sauce.</p>
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Cheese Burger</h3><span class="menu-item-price">£6.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>1/4 Cheese Burger with Doner Meat</h3><span class="menu-item-price">£8.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Burger</h3><span class="menu-item-price">£7.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Veggie Burger</h3><span class="menu-item-price">£6.49</span></div><div class="menu-item-badges"><span class="badge badge-veggie">Vegetarian</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Eggy Burger</h3><span class="menu-item-price">£8.99</span></div><p>1/4 burger with fried egg</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Doner Roll</h3><span class="menu-item-price">£6.99</span></div><p>Doner meat in a burger bun</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Grilled Halloumi Burger</h3><span class="menu-item-price">£5.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Strip Burger</h3><span class="menu-item-price">£6.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Shish in a Roll</h3><span class="menu-item-price">£6.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Avo Burger</h3><span class="menu-item-price">£5.49</span></div><p>Avocado and hummus, any salad and sauce</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Burger and Doner</h3><span class="menu-item-price">£9.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>1/4 Cheese and Chicken Burger</h3><span class="menu-item-price">£8.49</span></div><p>1 beef patty and 1 chicken patty in one bun</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>1/4 Burger with Hash Brown and Turkey Bacon</h3><span class="menu-item-price">£8.99</span></div></div>
+    </div>
+  </div>
+
+  <!-- SALADS -->
+  <div class="menu-section" id="tab-salads">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Falafel and Hummus Salad</h3><span class="menu-item-price">£8.99</span></div><div class="menu-item-badges"><span class="badge badge-veggie">Vegetarian</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Vegetarian Salad</h3><span class="menu-item-price">£7.49</span></div><p>Halloumi, avocado, mixed seeds</p><div class="menu-item-badges"><span class="badge badge-veggie">Vegetarian</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Caesar Salad</h3><span class="menu-item-price">£8.99</span></div><p>Chicken, lettuce, parmesan, croutons, Caesar dressing</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Falafel Salad</h3><span class="menu-item-price">£7.99</span></div><p>Served with a dressing of your choice</p></div>
+    </div>
+  </div>
+
+  <!-- SIDES -->
+  <div class="menu-section" id="tab-sides">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Pot of Sauce</h3><span class="menu-item-price">£1.50</span></div><p>Any sauce of your choice</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chips</h3><span class="menu-item-price">£4.20</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chips and Cheese</h3><span class="menu-item-price">£5.99</span></div><div class="menu-item-badges"><span class="badge badge-popular">Popular</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Curly Fries</h3><span class="menu-item-price">£5.99</span></div><div class="menu-item-badges"><span class="badge badge-popular">Popular</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Nuggets</h3><span class="menu-item-price">£6.49</span></div><p>6 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Onion Rings</h3><span class="menu-item-price">£7.49</span></div><p>10 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Mozzarella Sticks</h3><span class="menu-item-price">£6.49</span></div><p>5 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Hummus</h3><span class="menu-item-price">£3.00</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Popcorn Chicken Bites</h3><span class="menu-item-price">£5.49</span></div><p>10 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Feta Cheese Börek</h3><span class="menu-item-price">£5.99</span></div><p>4 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Halloumi Fries</h3><span class="menu-item-price">£6.49</span></div><p>6 pieces, served with sweet chilli</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Hash Brown</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Spicy Chicken Wings</h3><span class="menu-item-price">£6.99</span></div><p>5 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chicken Strips</h3><span class="menu-item-price">£6.99</span></div><p>5 pieces, southern fried</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Grilled Halloumi</h3><span class="menu-item-price">£5.99</span></div><p>4 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Extra Pitta</h3><span class="menu-item-price">£1.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Chips and Salad in Pitta</h3><span class="menu-item-price">£6.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Salad in Box</h3><span class="menu-item-price">£3.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Sucuk</h3><span class="menu-item-price">£5.49</span></div><p>4 pieces</p><div class="menu-item-badges"><span class="badge badge-halal">Halal</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Grilled Tomatoes</h3><span class="menu-item-price">£2.50</span></div><p>2 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Falafel</h3><span class="menu-item-price">£5.19</span></div><p>4 pieces</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>5pc Nuggets and Chips</h3><span class="menu-item-price">£8.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Mozzarella Sticks and Chips</h3><span class="menu-item-price">£8.50</span></div><p>5 pieces mozzarella sticks and chips</p></div>
+    </div>
+  </div>
+
+  <!-- DESSERTS -->
+  <div class="menu-section" id="tab-desserts">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Turkish Baklava</h3><span class="menu-item-price">£6.49</span></div><p>4 pieces</p></div>
+    </div>
+  </div>
+
+  <!-- DRINKS -->
+  <div class="menu-section" id="tab-drinks">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>1.5L Coke</h3><span class="menu-item-price">£3.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Coke Zero</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Ayran</h3><span class="menu-item-price">£2.00</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Coca-Cola</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Can of Drink</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Fanta Orange</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Rio</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Diet Coke</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Water</h3><span class="menu-item-price">£2.00</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Dr Pepper</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>7up</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Miranda Strawberry</h3><span class="menu-item-price">£2.50</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Pepsi</h3><span class="menu-item-price">£2.50</span></div></div>
+    </div>
+  </div>
+
+  <!-- KIDS -->
+  <div class="menu-section" id="tab-kids">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Kids Meat and Chips</h3><span class="menu-item-price">£6.49</span></div><p>Doner meat and chips</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Kids Cheese Burger and Chips</h3><span class="menu-item-price">£6.49</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Kids Chicken Nuggets and Chips</h3><span class="menu-item-price">£5.49</span></div></div>
+    </div>
+  </div>
+
+  <!-- OMELETTE -->
+  <div class="menu-section" id="tab-omelette">
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1.5rem;">All made with 3 eggs and cheddar cheese.</p>
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Omelette</h3><span class="menu-item-price">£11.99</span></div><p>3 eggs and cheddar cheese, served with chips</p></div>
+    </div>
+  </div>
+
+  <!-- LOADED FRIES -->
+  <div class="menu-section" id="tab-loaded">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>Iftar Box</h3><span class="menu-item-price">£24.69</span></div><p>Beef or chicken burger, 4 mozzarella sticks, 3 spicy wings, fries loaded with cheddar, garlic sauce and garnish</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Hungry Kebab Special</h3><span class="menu-item-price">£23.99</span></div><p>Chicken and doner with garlic sauce and yoghurt mint sauce on cheese chips with 2 grilled peppers</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Hungry Meat Box</h3><span class="menu-item-price">£14.39</span></div><p>Doner meat, cheddar cheese, gherkin, onions, ketchup, mayo, garnished with parsley</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Saucy Chilli Chicken Box</h3><span class="menu-item-price">£14.99</span></div><p>Diced chicken, chef's special sauce, chilli, cheddar, crispy onions, parsley and spring onions</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Fried Chicken Box</h3><span class="menu-item-price">£13.49</span></div><p>5 fried chicken strips, cheddar, BBQ sauce, ranch, crispy onions, parsley and spring onions</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Cheese Burger Box</h3><span class="menu-item-price">£13.49</span></div><p>2 beef patties diced with cheddar, onions, crispy onions, pickles, burger sauce, parsley</p></div>
+    </div>
+  </div>
+
+  <!-- WINGS -->
+  <div class="menu-section" id="tab-wings">
+    <div class="menu-grid">
+      <div class="menu-item"><div class="menu-item-header"><h3>5pc Wings</h3><span class="menu-item-price">£6.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>10pc Wings</h3><span class="menu-item-price">£12.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>15pc Wings</h3><span class="menu-item-price">£18.99</span></div></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>BBQ Wings</h3><span class="menu-item-price">£9.45</span></div><p>Fried wings in rich BBQ sauce, parsley, fried onions and spring onions</p></div>
+      <div class="menu-item"><div class="menu-item-header"><h3>Fried Peri Peri Wings</h3><span class="menu-item-price">£9.49</span></div><p>Crunchy peri peri wings topped with parsley</p></div>
+    </div>
+  </div>
+
+  <footer>
+    <a href="index.html" class="footer-logo"><img src="logo.png" alt="Hungry Kebab" style="height:40px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+    <div class="footer-socials">
+      <a href="https://instagram.com/hungrykebab.cambridge" target="_blank"><i class="ti ti-brand-instagram"></i> Instagram</a>
+      <a href="https://facebook.com/Hungrykebab.Cambridge" target="_blank"><i class="ti ti-brand-facebook"></i> Facebook</a>
+    </div>
+    <p>© 2026 Hungry Kebab · Cambridge</p>
+  </footer>
+
+  <script>
+    // ── NAV ──
+    function toggleNav() {
+      var nav = document.getElementById('mobileNav');
+      nav.classList.toggle('open');
+    }
+    document.querySelectorAll('.mobile-nav a').forEach(function(l) {
+      l.addEventListener('click', function() {
+        document.getElementById('mobileNav').classList.remove('open');
+      });
+    });
+
+    // ── RAIN CANVAS ──
+    var rc = document.getElementById('rainCanvas');
+    var rctx = rc.getContext('2d');
+    var drops = [];
+
+    function resizeRain() {
+      rc.width = rc.offsetWidth;
+      rc.height = rc.offsetHeight;
+    }
+    resizeRain();
+    window.addEventListener('resize', resizeRain);
+
+    for (var i = 0; i < 60; i++) {
+      drops.push({
+        x: Math.random() * 1200,
+        y: Math.random() * 400,
+        len: Math.random() * 20 + 8,
+        speed: Math.random() * 3 + 2,
+        opacity: Math.random() * 0.3 + 0.05
+      });
+    }
+
+    function animateRain() {
+      rctx.clearRect(0, 0, rc.width, rc.height);
+      drops.forEach(function(d) {
+        rctx.save();
+        rctx.globalAlpha = d.opacity;
+        rctx.strokeStyle = '#C9A84C';
+        rctx.lineWidth = 0.5;
+        rctx.beginPath();
+        rctx.moveTo(d.x, d.y);
+        rctx.lineTo(d.x - 1, d.y + d.len);
+        rctx.stroke();
+        rctx.restore();
+        d.y += d.speed;
+        if (d.y > rc.height) { d.y = -d.len; d.x = Math.random() * rc.width; }
+      });
+      requestAnimationFrame(animateRain);
+    }
+    animateRain();
+
+    // ── TABS ──
+    function showTab(name, btn) {
+      document.querySelectorAll('.menu-section').forEach(function(s) { s.classList.remove('active'); });
+      document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+      var section = document.getElementById('tab-' + name);
+      section.classList.add('active');
+      btn.classList.add('active');
+
+      // Staggered card animation
+      var cards = section.querySelectorAll('.menu-item, .deal-item');
+      cards.forEach(function(c) {
+        c.classList.remove('show');
+        c.style.animationDelay = '0ms';
+      });
+      setTimeout(function() {
+        cards.forEach(function(c, i) {
+          c.style.animationDelay = (i * 40) + 'ms';
+          c.classList.add('show');
+        });
+      }, 10);
+    }
+
+    // Trigger animation on initial load
+    var initialCards = document.querySelectorAll('#tab-deals .deal-item');
+    initialCards.forEach(function(c, i) {
+      c.style.animationDelay = (i * 40) + 'ms';
+      c.classList.add('show');
+    });
+  </script>
+
+</body>
+</html>

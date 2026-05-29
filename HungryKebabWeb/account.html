@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Account · Hungry Kebab Cambridge</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root { --gold:#C9A84C; --gold-light:#E8C96A; --gold-dark:#9A7A2E; --black:#0D0D0D; --black-soft:#1A1A1A; --black-card:#222222; --black-border:#2E2E2E; --cream:#F5F0E8; --text-muted:#888; }
+    body { font-family:'DM Sans',sans-serif; font-size:16px; background:var(--black); color:var(--cream); min-height:100vh; overflow-x:clip; }
+
+    nav { display:flex; justify-content:space-between; align-items:center; padding:1.2rem 2.5rem; background:rgba(13,13,13,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--black-border); position:sticky; top:0; z-index:100; }
+    .nav-logo { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--cream); text-decoration:none; display:flex; align-items:center; }
+    .nav-logo span { color:var(--gold); }
+    .nav-links { display:flex; gap:2rem; list-style:none; align-items:center; }
+    .nav-links a { color:var(--text-muted); text-decoration:none; font-size:0.9rem; font-weight:500; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--gold); }
+    .nav-links a.active { color:var(--gold); }
+    .nav-order-btn { background:var(--gold) !important; color:var(--black) !important; padding:0.5rem 1.2rem; border-radius:4px; }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; }
+    .hamburger i { color:var(--gold); font-size:1.4rem; }
+    .mobile-nav { display:none; flex-direction:column; background:var(--black-soft); padding:1rem 2rem 1.5rem; border-bottom:1px solid var(--black-border); }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { color:var(--text-muted); text-decoration:none; font-size:1rem; padding:0.75rem 0; border-bottom:1px solid var(--black-border); transition:color 0.2s; }
+    .mobile-nav a:last-child { color:var(--black); background:var(--gold); text-align:center; border-radius:4px; border:none; margin-top:0.75rem; padding:0.75rem; }
+
+    /* HERO */
+    .account-hero { position:relative; background:var(--black-soft); border-bottom:1px solid var(--black-border); padding:3rem 2.5rem; overflow:hidden; }
+    #constellationCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; opacity:0.5; }
+    .account-hero-content { position:relative; z-index:1; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1.5rem; }
+    .account-welcome { display:flex; align-items:center; gap:1.2rem; }
+    .account-avatar { width:64px; height:64px; border-radius:50%; background:var(--black-card); border:2px solid var(--gold-dark); display:flex; align-items:center; justify-content:center; font-family:'Playfair Display',serif; font-size:1.6rem; color:var(--gold); flex-shrink:0; }
+    .account-welcome h1 { font-family:'Playfair Display',serif; font-size:clamp(1.6rem,3vw,2.2rem); color:var(--cream); }
+    .account-welcome h1 em { color:var(--gold); font-style:italic; }
+    .account-welcome p { font-size:0.85rem; color:var(--text-muted); margin-top:0.2rem; }
+    .signout-btn { background:none; border:1px solid var(--black-border); color:var(--text-muted); padding:0.5rem 1.2rem; border-radius:4px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.85rem; transition:border-color 0.2s, color 0.2s; display:flex; align-items:center; gap:0.5rem; }
+    .signout-btn:hover { border-color:#e74c3c; color:#e74c3c; }
+
+    /* LAYOUT */
+    .account-layout { display:grid; grid-template-columns:280px 1fr; gap:2rem; padding:2.5rem; max-width:1100px; margin:0 auto; }
+
+    /* SIDEBAR */
+    .account-sidebar { display:flex; flex-direction:column; gap:0.5rem; position:sticky; top:85px; }
+    .sidebar-btn { background:none; border:none; color:var(--text-muted); font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.9rem; padding:0.75rem 1rem; border-radius:8px; cursor:pointer; text-align:left; display:flex; align-items:center; gap:0.75rem; transition:background 0.15s, color 0.15s; width:100%; }
+    .sidebar-btn:hover { background:var(--black-card); color:var(--cream); }
+    .sidebar-btn.active { background:var(--black-card); color:var(--gold); border:1px solid var(--black-border); }
+    .sidebar-btn i { font-size:1.1rem; }
+
+    /* PANELS */
+    .account-panel { display:none; }
+    .account-panel.active { display:block; }
+
+    .panel-title { font-family:'Playfair Display',serif; font-size:1.5rem; color:var(--cream); margin-bottom:0.4rem; }
+    .panel-sub { font-size:0.85rem; color:var(--text-muted); margin-bottom:2rem; }
+
+    /* CARDS */
+    .info-card { background:var(--black-card); border:1px solid var(--black-border); border-radius:12px; padding:1.5rem; margin-bottom:1.2rem; }
+    .info-card h3 { font-size:0.8rem; font-weight:500; color:var(--gold); letter-spacing:1px; text-transform:uppercase; margin-bottom:1rem; }
+
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:0.78rem; font-weight:500; color:var(--text-muted); margin-bottom:0.4rem; letter-spacing:0.5px; text-transform:uppercase; }
+    .input-wrap { position:relative; }
+    .input-wrap i { position:absolute; left:0.9rem; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:1rem; pointer-events:none; }
+    .form-group input, .form-group select { width:100%; background:var(--black-soft); border:1px solid var(--black-border); border-radius:6px; padding:0.75rem 1rem 0.75rem 2.6rem; color:var(--cream); font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.9rem; outline:none; transition:border-color 0.2s; }
+    .form-group select { padding-left:1rem; appearance:none; cursor:pointer; }
+    .form-group input:focus, .form-group select:focus { border-color:var(--gold-dark); }
+    .form-group input::placeholder { color:var(--text-muted); }
+    .form-group select option { background:var(--black-card); }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+
+    .save-btn { background:var(--gold); color:var(--black); border:none; border-radius:6px; padding:0.75rem 2rem; font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.9rem; font-weight:500; cursor:pointer; transition:background 0.2s; }
+    .save-btn:hover { background:var(--gold-light); }
+    .save-success { font-size:0.82rem; color:#4caf50; margin-left:1rem; opacity:0; transition:opacity 0.3s; }
+    .save-success.show { opacity:1; }
+
+    /* ORDER HISTORY */
+    .orders-list { display:flex; flex-direction:column; gap:1rem; }
+    .order-card { background:var(--black-card); border:1px solid var(--black-border); border-radius:12px; padding:1.2rem 1.5rem; transition:border-color 0.2s; }
+    .order-card:hover { border-color:var(--gold-dark); }
+    .order-card-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem; flex-wrap:wrap; gap:0.5rem; }
+    .order-id { font-size:0.82rem; font-weight:500; color:var(--gold); }
+    .order-meta { display:flex; gap:1rem; align-items:center; flex-wrap:wrap; }
+    .order-date { font-size:0.78rem; color:var(--text-muted); }
+    .order-type-badge { font-size:0.68rem; font-weight:500; padding:0.15rem 0.5rem; border-radius:2px; text-transform:uppercase; background:var(--black-border); color:var(--text-muted); }
+    .order-status { font-size:0.68rem; font-weight:500; padding:0.15rem 0.5rem; border-radius:2px; background:#1a3a1a; color:#6dbf8a; }
+    .order-items { margin-bottom:0.75rem; }
+    .order-item-line { font-size:0.82rem; color:var(--text-muted); padding:0.2rem 0; border-bottom:1px solid rgba(255,255,255,0.04); }
+    .order-item-line:last-child { border-bottom:none; }
+    .order-footer { display:flex; justify-content:space-between; align-items:center; padding-top:0.75rem; border-top:1px solid var(--black-border); }
+    .order-total { font-size:0.95rem; font-weight:500; color:var(--cream); }
+    .reorder-btn { background:var(--gold); color:var(--black); border:none; border-radius:4px; padding:0.45rem 1rem; font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.82rem; font-weight:500; cursor:pointer; transition:background 0.2s; display:flex; align-items:center; gap:0.4rem; }
+    .reorder-btn:hover { background:var(--gold-light); }
+    .no-orders { text-align:center; padding:3rem 1rem; color:var(--text-muted); }
+    .no-orders i { font-size:2.5rem; color:var(--black-border); display:block; margin-bottom:0.75rem; }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:2rem; left:50%; transform:translateX(-50%); background:var(--black-card); border:1px solid var(--gold-dark); color:var(--cream); padding:0.75rem 1.5rem; border-radius:8px; font-size:0.88rem; z-index:500; opacity:0; transition:opacity 0.3s; pointer-events:none; }
+    .toast.show { opacity:1; }
+
+    footer { background:var(--black); border-top:1px solid var(--black-border); padding:2rem 2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+    .footer-logo { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--cream); text-decoration:none; display:flex; align-items:center; }
+    .footer-logo span { color:var(--gold); }
+    .footer-socials { display:flex; gap:1rem; }
+    .footer-socials a { color:var(--text-muted); text-decoration:none; font-size:0.85rem; display:flex; align-items:center; gap:0.4rem; transition:color 0.2s; }
+    .footer-socials a:hover { color:var(--gold); }
+    footer p { color:#444; font-size:0.85rem; }
+
+    @media(max-width:768px) {
+      .nav-links{display:none;} .hamburger{display:block;}
+      .account-layout{grid-template-columns:1fr;padding:1.5rem;}
+      .account-sidebar{flex-direction:row;flex-wrap:wrap;position:static;}
+      .sidebar-btn{flex:1;min-width:120px;justify-content:center;text-align:center;flex-direction:column;gap:0.3rem;font-size:0.78rem;}
+      .form-row{grid-template-columns:1fr;}
+      .account-hero{padding:2rem 1.5rem;}
+      footer{flex-direction:column;text-align:center;}
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><img src="logo.png" alt="Hungry Kebab" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="order.html">Menu & Order</a></li>
+    <li><a href="index.html#find-us">Find Us</a></li>
+    <li><a href="about.html">About Us</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="account.html" class="active">My Account</a></li>
+    <li><a href="order.html" class="nav-order-btn">Order Now</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleNav()"><i class="ti ti-menu-2"></i></button>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a><a href="order.html">Menu & Order</a><a href="index.html#find-us">Find Us</a><a href="about.html">About Us</a><a href="events.html">Events</a><a href="account.html">My Account</a><a href="order.html">Order Now</a>
+</div>
+
+<div class="account-hero">
+  <canvas id="constellationCanvas"></canvas>
+  <div class="account-hero-content">
+    <div class="account-welcome">
+      <div class="account-avatar" id="avatarInitial">?</div>
+      <div>
+        <h1 id="welcomeTitle">Welcome <em>back</em></h1>
+        <p id="welcomeSub">Manage your account and order history</p>
+      </div>
+    </div>
+    <button class="signout-btn" onclick="signOut()"><i class="ti ti-logout"></i> Sign out</button>
+  </div>
+</div>
+
+<div class="account-layout">
+
+  <!-- SIDEBAR -->
+  <div class="account-sidebar">
+    <button class="sidebar-btn active" onclick="showPanel('orders',this)"><i class="ti ti-receipt"></i> Order History</button>
+    <button class="sidebar-btn" onclick="showPanel('details',this)"><i class="ti ti-user"></i> My Details</button>
+    <button class="sidebar-btn" onclick="showPanel('preferences',this)"><i class="ti ti-settings"></i> Preferences</button>
+    <button class="sidebar-btn" onclick="showPanel('address',this)"><i class="ti ti-map-pin"></i> Delivery Address</button>
+  </div>
+
+  <!-- PANELS -->
+  <div>
+
+    <!-- ORDER HISTORY -->
+    <div class="account-panel active" id="panel-orders">
+      <h2 class="panel-title">Order History</h2>
+      <p class="panel-sub">Your past orders — tap Reorder to add everything back to your basket instantly.</p>
+      <div class="orders-list" id="ordersList"></div>
+    </div>
+
+    <!-- MY DETAILS -->
+    <div class="account-panel" id="panel-details">
+      <h2 class="panel-title">My Details</h2>
+      <p class="panel-sub">Update your personal information.</p>
+      <div class="info-card">
+        <h3>Personal info</h3>
+        <div class="form-row">
+          <div class="form-group"><label>First name</label><div class="input-wrap"><i class="ti ti-user"></i><input type="text" id="accFirst" /></div></div>
+          <div class="form-group"><label>Last name</label><div class="input-wrap"><i class="ti ti-user"></i><input type="text" id="accLast" /></div></div>
+        </div>
+        <div class="form-group"><label>Email</label><div class="input-wrap"><i class="ti ti-mail"></i><input type="email" id="accEmail" /></div></div>
+        <div class="form-group"><label>Phone</label><div class="input-wrap"><i class="ti ti-phone"></i><input type="tel" id="accPhone" /></div></div>
+        <button class="save-btn" onclick="saveDetails()">Save changes</button>
+        <span class="save-success" id="detailsSaved">✓ Saved!</span>
+      </div>
+    </div>
+
+    <!-- PREFERENCES -->
+    <div class="account-panel" id="panel-preferences">
+      <h2 class="panel-title">Order Preferences</h2>
+      <p class="panel-sub">These will be pre-selected at checkout to save you time.</p>
+      <div class="info-card">
+        <h3>Default order settings</h3>
+        <div class="form-group">
+          <label>Preferred order type</label>
+          <select id="accOrderType">
+            <option value="">No preference</option>
+            <option value="collection">Collection</option>
+            <option value="delivery">Delivery</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Preferred payment method</label>
+          <select id="accPayment">
+            <option value="">No preference</option>
+            <option value="card">Pay by Card</option>
+            <option value="cash">Pay with Cash</option>
+          </select>
+        </div>
+        <button class="save-btn" onclick="savePreferences()">Save preferences</button>
+        <span class="save-success" id="prefsSaved">✓ Saved!</span>
+      </div>
+    </div>
+
+    <!-- ADDRESS -->
+    <div class="account-panel" id="panel-address">
+      <h2 class="panel-title">Delivery Address</h2>
+      <p class="panel-sub">Saved for faster checkout on delivery orders.</p>
+      <div class="info-card">
+        <h3>Your address</h3>
+        <div class="form-group"><label>Address line 1</label><div class="input-wrap"><i class="ti ti-map-pin"></i><input type="text" id="accAddr1" placeholder="123 High Street" /></div></div>
+        <div class="form-group"><label>Address line 2</label><div class="input-wrap"><i class="ti ti-map-pin"></i><input type="text" id="accAddr2" placeholder="Flat 2 (optional)" /></div></div>
+        <div class="form-row">
+          <div class="form-group"><label>City</label><div class="input-wrap"><i class="ti ti-building"></i><input type="text" id="accCity" placeholder="Cambridge" /></div></div>
+          <div class="form-group"><label>Postcode</label><div class="input-wrap"><i class="ti ti-map"></i><input type="text" id="accPostcode" placeholder="CB1 1AA" /></div></div>
+        </div>
+        <button class="save-btn" onclick="saveAddress()">Save address</button>
+        <span class="save-success" id="addrSaved">✓ Saved!</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <a href="index.html" class="footer-logo"><img src="logo.png" alt="Hungry Kebab" style="height:40px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+  <div class="footer-socials">
+    <a href="https://instagram.com/hungrykebab.cambridge" target="_blank"><i class="ti ti-brand-instagram"></i> Instagram</a>
+    <a href="https://facebook.com/Hungrykebab.Cambridge" target="_blank"><i class="ti ti-brand-facebook"></i> Facebook</a>
+  </div>
+  <p>© 2026 Hungry Kebab · Cambridge</p>
+</footer>
+
+<script>
+  // Redirect if not logged in
+  var user = JSON.parse(localStorage.getItem('hk_user') || 'null');
+  if (!user) window.location.href = 'login.html';
+
+  function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+
+  // ── POPULATE ACCOUNT ──
+  function populateAccount() {
+    if (!user) return;
+    var initial = (user.firstName || '?')[0].toUpperCase();
+    document.getElementById('avatarInitial').textContent = initial;
+    document.getElementById('welcomeTitle').innerHTML = 'Welcome back, <em>' + user.firstName + '</em>';
+    document.getElementById('welcomeSub').textContent = 'Member since ' + (user.joined || 'today');
+
+    document.getElementById('accFirst').value = user.firstName || '';
+    document.getElementById('accLast').value = user.lastName || '';
+    document.getElementById('accEmail').value = user.email || '';
+    document.getElementById('accPhone').value = user.phone || '';
+    document.getElementById('accOrderType').value = user.orderType || '';
+    document.getElementById('accPayment').value = user.paymentMethod || '';
+    document.getElementById('accAddr1').value = user.addr1 || '';
+    document.getElementById('accAddr2').value = user.addr2 || '';
+    document.getElementById('accCity').value = user.city || '';
+    document.getElementById('accPostcode').value = user.postcode || '';
+
+    renderOrders();
+  }
+
+  function renderOrders() {
+    var orders = JSON.parse(localStorage.getItem('hk_orders') || '[]');
+    var el = document.getElementById('ordersList');
+    if (orders.length === 0) {
+      el.innerHTML = '<div class="no-orders"><i class="ti ti-receipt-off"></i><p>No orders yet.<br><a href="order.html" style="color:var(--gold);">Place your first order →</a></p></div>';
+      return;
+    }
+    el.innerHTML = orders.map(function(o, idx) {
+      var itemsHtml = o.items.map(function(i) {
+        return '<div class="order-item-line">' + i.qty + 'x ' + i.name + (i.sub?' ('+i.sub+')':'') + ' — £' + (i.unitPrice*i.qty).toFixed(2) + '</div>';
+      }).join('');
+      return '<div class="order-card">' +
+        '<div class="order-card-header">' +
+          '<span class="order-id">#' + o.id + '</span>' +
+          '<div class="order-meta">' +
+            '<span class="order-date">' + o.date + ' at ' + o.time + '</span>' +
+            '<span class="order-type-badge">' + o.type + '</span>' +
+            '<span class="order-status">✓ ' + o.status + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="order-items">' + itemsHtml + '</div>' +
+        '<div class="order-footer">' +
+          '<span class="order-total">Total: £' + o.total + '</span>' +
+          '<button class="reorder-btn" onclick="reorder('+idx+')"><i class="ti ti-refresh"></i> Reorder</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function reorder(idx) {
+    var orders = JSON.parse(localStorage.getItem('hk_orders') || '[]');
+    var order = orders[idx];
+    if (!order) return;
+    // Save basket to localStorage so order page can pick it up
+    localStorage.setItem('hk_reorder', JSON.stringify(order.items));
+    showToast('Items added! Taking you to your basket...');
+    setTimeout(function() { window.location.href = 'order.html'; }, 1200);
+  }
+
+  // ── SAVE FUNCTIONS ──
+  function updateUser(changes) {
+    Object.assign(user, changes);
+    localStorage.setItem('hk_user', JSON.stringify(user));
+    var users = JSON.parse(localStorage.getItem('hk_users') || '[]');
+    var idx = users.findIndex(function(u) { return u.id === user.id; });
+    if (idx > -1) { users[idx] = user; localStorage.setItem('hk_users', JSON.stringify(users)); }
+  }
+
+  function saveDetails() {
+    updateUser({ firstName:document.getElementById('accFirst').value, lastName:document.getElementById('accLast').value, email:document.getElementById('accEmail').value, phone:document.getElementById('accPhone').value });
+    flashSaved('detailsSaved');
+  }
+
+  function savePreferences() {
+    updateUser({ orderType:document.getElementById('accOrderType').value, paymentMethod:document.getElementById('accPayment').value });
+    flashSaved('prefsSaved');
+  }
+
+  function saveAddress() {
+    updateUser({ addr1:document.getElementById('accAddr1').value, addr2:document.getElementById('accAddr2').value, city:document.getElementById('accCity').value, postcode:document.getElementById('accPostcode').value });
+    flashSaved('addrSaved');
+  }
+
+  function flashSaved(id) {
+    var el = document.getElementById(id);
+    el.classList.add('show');
+    setTimeout(function() { el.classList.remove('show'); }, 2500);
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  // ── PANELS ──
+  function showPanel(name, btn) {
+    document.querySelectorAll('.account-panel').forEach(function(p) { p.classList.remove('active'); });
+    document.querySelectorAll('.sidebar-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.getElementById('panel-'+name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function signOut() {
+    localStorage.removeItem('hk_user');
+    window.location.href = 'login.html';
+  }
+
+  populateAccount();
+
+  // Constellation
+  var canvas = document.getElementById('constellationCanvas');
+  var ctx = canvas.getContext('2d');
+  var stars = [];
+  function resize() { canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for (var i=0;i<40;i++) stars.push({x:Math.random()*1400,y:Math.random()*200,vx:(Math.random()-0.5)*0.2,vy:(Math.random()-0.5)*0.2,r:Math.random()*1.5+0.5,opacity:Math.random()*0.3+0.08});
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(function(s) {
+      s.x+=s.vx; s.y+=s.vy;
+      if(s.x<0)s.x=canvas.width; if(s.x>canvas.width)s.x=0;
+      if(s.y<0)s.y=canvas.height; if(s.y>canvas.height)s.y=0;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(201,168,76,'+s.opacity+')'; ctx.fill();
+    });
+    for(var i=0;i<stars.length;i++) for(var j=i+1;j<stars.length;j++) {
+      var dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<100){ctx.beginPath();ctx.moveTo(stars[i].x,stars[i].y);ctx.lineTo(stars[j].x,stars[j].y);ctx.strokeStyle='rgba(201,168,76,'+(0.05*(1-dist/100))+')';ctx.lineWidth=0.5;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+</body>
+</html>

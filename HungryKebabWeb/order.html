@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Menu & Order · Hungry Kebab Cambridge</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    :root {
+      --gold: #C9A84C; --gold-light: #E8C96A; --gold-dark: #9A7A2E;
+      --black: #0D0D0D; --black-soft: #1A1A1A; --black-card: #222222;
+      --black-border: #2E2E2E; --cream: #F5F0E8; --text-muted: #888;
+    }
+    body { font-family: 'DM Sans', sans-serif; font-size: 16px; background: var(--black); color: var(--cream); overflow-x: clip; }
+
+    /* NAV */
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 2.5rem; background: rgba(13,13,13,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--black-border); position: sticky; top: 0; z-index: 200; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--cream); text-decoration: none; display: flex; align-items: center; }
+    .nav-logo span { color: var(--gold); }
+    .nav-links { display: flex; gap: 2rem; list-style: none; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-links a.active { color: var(--gold); }
+    .nav-order-btn { background: var(--gold) !important; color: var(--black) !important; padding: 0.5rem 1.2rem; border-radius: 4px; }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; }
+    .hamburger i { color: var(--gold); font-size: 1.4rem; }
+    .mobile-nav { display: none; flex-direction: column; background: var(--black-soft); padding: 1rem 2rem 1.5rem; border-bottom: 1px solid var(--black-border); }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { color: var(--text-muted); text-decoration: none; font-size: 1rem; padding: 0.75rem 0; border-bottom: 1px solid var(--black-border); transition: color 0.2s; }
+    .mobile-nav a:last-child { color: var(--black); background: var(--gold); text-align: center; border-radius: 4px; border: none; margin-top: 0.75rem; padding: 0.75rem; }
+
+    /* BASKET NAV BTN */
+    .basket-nav-btn { position: relative; background: var(--black-card); border: 1px solid var(--black-border); color: var(--cream); padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; font-weight: 500; transition: border-color 0.2s, box-shadow 0.2s; }
+    .basket-nav-btn.has-items { border-color: var(--gold-dark); animation: basketPulse 2s ease-in-out infinite; }
+    @keyframes basketPulse { 0%,100% { box-shadow: 0 0 8px rgba(201,168,76,0.15); } 50% { box-shadow: 0 0 20px rgba(201,168,76,0.35); } }
+    .basket-count { background: var(--gold); color: var(--black); font-size: 0.7rem; font-weight: 500; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: absolute; top: -6px; right: -6px; }
+    .basket-count.hidden { display: none; }
+
+    /* PAGE HEADER */
+    .page-header { position: relative; padding: 3.5rem 2.5rem 2.5rem; background: var(--black-soft); border-bottom: 1px solid var(--black-border); overflow: hidden; }
+    #bokehCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+    .page-header-content { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; }
+    .page-header h1 { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 3vw, 2.6rem); color: var(--cream); line-height: 1.1; }
+    .page-header h1 em { color: var(--gold); font-style: italic; }
+    .page-header p { color: var(--text-muted); font-size: 0.88rem; margin-top: 0.4rem; }
+    .open-indicator { display: flex; align-items: center; gap: 0.6rem; background: var(--black-card); border: 1px solid var(--black-border); border-radius: 6px; padding: 0.6rem 1rem; font-size: 0.82rem; }
+    .open-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .open-dot.open { background: #4caf50; box-shadow: 0 0 8px rgba(76,175,80,0.6); animation: dotPulse 1.5s ease-in-out infinite; }
+    .open-dot.closed { background: #888; }
+    @keyframes dotPulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
+
+    /* LAYOUT */
+    .page-layout { display: grid; grid-template-columns: 1fr 380px; min-height: calc(100vh - 65px); align-items: start; }
+
+    /* TABS */
+    .tabs-wrapper { background: rgba(13,13,13,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--black-border); position: sticky; top: 65px; z-index: 90; overflow-x: auto; scrollbar-width: none; }
+    .tabs-wrapper::-webkit-scrollbar { display: none; }
+    .tabs { display: flex; min-width: max-content; padding: 0 2rem; }
+    .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 16px; font-size: 0.85rem; font-weight: 500; padding: 0.9rem 1rem; cursor: pointer; white-space: nowrap; transition: color 0.2s, border-color 0.2s, text-shadow 0.3s; }
+    .tab-btn:hover { color: var(--cream); }
+    .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); text-shadow: 0 0 14px rgba(201,168,76,0.55); }
+
+    /* MENU SECTION */
+    .menu-section { display: none; padding: 2rem; }
+    .menu-section.active { display: block; }
+    .section-note { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1.2rem; padding: 0.6rem 0.9rem; background: var(--black-card); border-radius: 6px; border-left: 2px solid var(--gold-dark); line-height: 1.5; }
+
+    .items-list { display: flex; flex-direction: column; gap: 0.75rem; }
+
+    .item-row { background: var(--black-card); border: 1px solid var(--black-border); border-radius: 10px; padding: 1rem 1.2rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s; opacity: 0; transform: translateY(12px); }
+    .item-row.show { animation: rowIn 0.35s ease forwards; }
+    @keyframes rowIn { to { opacity:1; transform:translateY(0); } }
+    .item-row:hover { border-color: var(--gold-dark); transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+
+    .item-row-info { flex: 1; }
+    .item-row-info h3 { font-size: 0.92rem; font-weight: 500; color: var(--cream); margin-bottom: 0.2rem; }
+    .item-row-info p { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
+    .item-extras-note { font-size: 0.72rem; color: var(--gold-dark); margin-top: 0.25rem; font-style: italic; }
+    .item-badges { display: flex; gap: 0.3rem; margin-top: 0.3rem; flex-wrap: wrap; }
+    .item-badge { font-size: 0.62rem; font-weight: 500; padding: 0.1rem 0.4rem; border-radius: 2px; text-transform: uppercase; }
+    .badge-pop { background: var(--gold); color: var(--black); }
+    .badge-veg { background: #2d5a27; color: #a8d4a0; }
+    .badge-halal { background: #1a3a2a; color: #6dbf8a; }
+
+    .item-row-right { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+    .item-price-range { font-size: 0.82rem; color: var(--text-muted); }
+    .item-price { font-size: 0.95rem; font-weight: 500; background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold)); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shimmer 3s linear infinite; white-space: nowrap; }
+    @keyframes shimmer { 0% { background-position:0% center; } 100% { background-position:200% center; } }
+
+    .add-btn { background: none; border: 1px solid var(--black-border); color: var(--gold); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
+    .add-btn:hover { background: var(--gold); color: var(--black); border-color: var(--gold); }
+    .add-btn:active { transform: scale(0.85); }
+    .add-btn.pop { animation: btnPop 0.25s ease; }
+    @keyframes btnPop { 0%{transform:scale(1);} 50%{transform:scale(1.35);} 100%{transform:scale(1);} }
+
+    .qty-control { display: flex; align-items: center; gap: 0.5rem; }
+    .qty-btn { background: var(--black-soft); border: 1px solid var(--black-border); color: var(--cream); width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .qty-btn:hover { background: var(--black-border); }
+    .qty-num { font-size: 0.9rem; font-weight: 500; min-width: 20px; text-align: center; color: var(--gold); }
+
+    /* ITEM OPTIONS MODAL */
+    .options-overlay { display: none; position: fixed; inset: 0; z-index: 400; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); }
+    .options-overlay.open { display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .options-modal { background: var(--black-soft); border: 1px solid var(--black-border); border-radius: 14px; width: 100%; max-width: 420px; animation: modalIn 0.25s ease; overflow: hidden; }
+    @keyframes modalIn { from{opacity:0;transform:scale(0.95) translateY(16px);} to{opacity:1;transform:scale(1) translateY(0);} }
+    .options-header { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--black-border); display: flex; justify-content: space-between; align-items: center; }
+    .options-header h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--cream); }
+    .options-header p { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .close-options { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.2rem; }
+    .options-body { padding: 1.2rem 1.5rem; }
+    .options-section-label { font-size: 0.72rem; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); margin-bottom: 0.6rem; margin-top: 1rem; }
+    .options-section-label:first-child { margin-top: 0; }
+
+    /* SIZE SELECTOR */
+    .size-options { display: flex; gap: 0.5rem; }
+    .size-btn { flex: 1; background: var(--black-card); border: 1px solid var(--black-border); color: var(--text-muted); border-radius: 6px; padding: 0.6rem 0.3rem; cursor: pointer; text-align: center; transition: all 0.15s; font-family: 'DM Sans', sans-serif; font-size: 16px; }
+    .size-btn:hover { border-color: var(--gold-dark); color: var(--cream); }
+    .size-btn.selected { background: var(--gold); color: var(--black); border-color: var(--gold); }
+    .size-btn .size-label { font-size: 0.82rem; font-weight: 500; display: block; }
+    .size-btn .size-price { font-size: 0.75rem; display: block; margin-top: 0.1rem; }
+
+    /* EXTRAS */
+    .extras-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .extra-item { display: flex; align-items: center; justify-content: space-between; background: var(--black-card); border: 1px solid var(--black-border); border-radius: 6px; padding: 0.6rem 0.9rem; cursor: pointer; transition: border-color 0.15s; }
+    .extra-item:hover { border-color: var(--gold-dark); }
+    .extra-item.selected { border-color: var(--gold-dark); background: rgba(201,168,76,0.06); }
+    .extra-item-left { display: flex; align-items: center; gap: 0.6rem; }
+    .extra-checkbox { width: 16px; height: 16px; border: 1px solid var(--black-border); border-radius: 3px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+    .extra-item.selected .extra-checkbox { background: var(--gold); border-color: var(--gold); }
+    .extra-item.selected .extra-checkbox::after { content: '✓'; font-size: 0.65rem; color: var(--black); font-weight: 700; }
+    .extra-name { font-size: 0.85rem; color: var(--cream); }
+    .extra-price { font-size: 0.82rem; color: var(--gold); }
+
+    .options-footer { padding: 1rem 1.5rem 1.5rem; border-top: 1px solid var(--black-border); }
+    .options-total { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.9rem; }
+    .options-total span { font-size: 0.85rem; color: var(--text-muted); }
+    .options-total strong { font-size: 1.05rem; color: var(--gold); }
+    .options-add-btn { width: 100%; background: var(--gold); color: var(--black); border: none; border-radius: 6px; padding: 0.85rem; font-family: 'DM Sans', sans-serif; font-size: 16px; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s; }
+    .options-add-btn:hover { background: var(--gold-light); }
+
+    /* BASKET */
+    .basket-panel { position: sticky; top: 65px; height: calc(100vh - 65px); display: flex; flex-direction: column; background: var(--black-soft); border-left: 1px solid var(--black-border); overflow: hidden; transition: box-shadow 0.3s; }
+    .basket-panel.glow { box-shadow: inset -1px 0 0 var(--gold-dark), 0 0 30px rgba(201,168,76,0.08); }
+    .basket-header { padding: 1.5rem 1.5rem 1rem; border-bottom: 1px solid var(--black-border); }
+    .basket-header h2 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--cream); }
+    .basket-header p { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+    .order-type { display: flex; margin: 1rem 1.5rem 0; background: var(--black-card); border-radius: 6px; padding: 3px; border: 1px solid var(--black-border); }
+    .order-type-btn { flex: 1; background: none; border: none; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 16px; font-size: 0.82rem; font-weight: 500; padding: 0.5rem; border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+    .order-type-btn.active { background: var(--gold); color: var(--black); }
+    .basket-items { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; scrollbar-width: thin; scrollbar-color: var(--black-border) transparent; }
+    .basket-empty { text-align: center; padding: 3rem 1rem; color: var(--text-muted); }
+    .basket-empty i { font-size: 2.5rem; color: var(--black-border); display: block; margin-bottom: 0.75rem; }
+    .basket-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--black-border); animation: itemSlide 0.25s ease; }
+    @keyframes itemSlide { from{opacity:0;transform:translateX(10px);} to{opacity:1;transform:translateX(0);} }
+    .basket-item:last-child { border-bottom: none; }
+    .basket-item-info { flex: 1; }
+    .basket-item-info h4 { font-size: 0.85rem; font-weight: 500; color: var(--cream); }
+    .basket-item-info .item-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.1rem; }
+    .basket-item-info .item-price-line { font-size: 0.75rem; color: var(--gold); margin-top: 0.1rem; }
+    .basket-item-qty { display: flex; align-items: center; gap: 0.4rem; flex-shrink: 0; }
+    .basket-item-qty button { background: var(--black-card); border: 1px solid var(--black-border); color: var(--cream); width: 24px; height: 24px; border-radius: 50%; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+    .basket-item-qty button:hover { background: var(--black-border); }
+    .basket-item-qty span { font-size: 0.85rem; min-width: 18px; text-align: center; }
+    .basket-footer { padding: 1rem 1.5rem 1.5rem; border-top: 1px solid var(--black-border); }
+    .basket-totals { margin-bottom: 1rem; }
+    .basket-row { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.4rem; color: var(--text-muted); }
+    .basket-row.total { color: var(--cream); font-size: 1rem; font-weight: 500; padding-top: 0.5rem; border-top: 1px solid var(--black-border); }
+    .checkout-btn { width: 100%; background: var(--gold); color: var(--black); border: none; border-radius: 6px; padding: 0.9rem; font-family: 'DM Sans', sans-serif; font-size: 16px; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .checkout-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .checkout-btn:disabled { background: var(--black-border); color: var(--text-muted); cursor: not-allowed; transform: none; }
+    .min-order { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 0.5rem; }
+
+    /* CHECKOUT */
+    .checkout-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.75); backdrop-filter: blur(6px); }
+    .checkout-overlay.open { display: flex; align-items: center; justify-content: center; padding: 1.5rem; }
+    .checkout-modal { background: var(--black-soft); border: 1px solid var(--black-border); border-radius: 16px; width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto; animation: modalIn 0.3s ease; }
+    .checkout-modal-header { padding: 1.5rem 2rem 1rem; border-bottom: 1px solid var(--black-border); display: flex; justify-content: space-between; align-items: center; }
+    .checkout-modal-header h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--cream); }
+    .close-modal { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.3rem; transition: color 0.2s; }
+    .close-modal:hover { color: var(--cream); }
+    .checkout-form { padding: 1.5rem 2rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--text-muted); margin-bottom: 0.4rem; letter-spacing: 0.5px; text-transform: uppercase; }
+    .form-group input, .form-group textarea, .form-group select { width: 100%; background: var(--black-card); border: 1px solid var(--black-border); border-radius: 6px; padding: 0.75rem 1rem; color: var(--cream); font-family: 'DM Sans', sans-serif; font-size: 16px; font-size: 0.9rem; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--gold-dark); box-shadow: 0 0 0 3px rgba(201,168,76,0.08); }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: var(--text-muted); }
+    .form-group textarea { height: 80px; resize: none; }
+    .form-group select { appearance: none; cursor: pointer; }
+    .form-group select option { background: var(--black-card); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-section-title { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--cream); margin: 1.5rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--black-border); }
+    .order-summary-mini { background: var(--black-card); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid var(--black-border); }
+    .order-summary-mini h4 { font-size: 0.8rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; }
+    .summary-item { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.4rem; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 500; color: var(--cream); padding-top: 0.5rem; border-top: 1px solid var(--black-border); margin-top: 0.5rem; }
+    .place-order-btn { width: 100%; background: var(--gold); color: var(--black); border: none; border-radius: 6px; padding: 1rem; font-family: 'DM Sans', sans-serif; font-size: 16px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: background 0.2s, transform 0.1s; }
+    .place-order-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .payment-note { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.4rem; }
+    .success-screen { display: none; text-align: center; padding: 3rem 2rem; }
+    .success-screen.show { display: block; }
+    .success-icon { font-size: 4rem; margin-bottom: 1rem; animation: successBounce 0.5s ease; }
+    @keyframes successBounce { 0%{transform:scale(0);} 70%{transform:scale(1.2);} 100%{transform:scale(1);} }
+    .success-screen h2 { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--gold); margin-bottom: 0.75rem; }
+    .success-screen p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 0.5rem; }
+    .order-number { font-size: 0.8rem; color: var(--gold); font-weight: 500; margin-top: 1rem; letter-spacing: 1px; }
+
+    /* FOOTER */
+    footer { background: var(--black); border-top: 1px solid var(--black-border); padding: 2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--cream); text-decoration: none; display: flex; align-items: center; }
+    .footer-logo span { color: var(--gold); }
+    .footer-socials { display: flex; gap: 1rem; }
+    .footer-socials a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+    .footer-socials a:hover { color: var(--gold); }
+    footer p { color: #444; font-size: 0.85rem; }
+
+    /* MOBILE FLOAT */
+    .float-basket { display: none; position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); z-index: 150; background: var(--gold); color: var(--black); padding: 0.9rem 2rem; border-radius: 50px; font-weight: 500; font-size: 0.95rem; border: none; cursor: pointer; box-shadow: 0 4px 24px rgba(201,168,76,0.35); }
+    .float-basket.has-items { animation: floatPulse 2.5s ease-in-out infinite; }
+    @keyframes floatPulse { 0%,100%{box-shadow:0 4px 24px rgba(201,168,76,0.35);} 50%{box-shadow:0 4px 36px rgba(201,168,76,0.6);} }
+
+    @media (max-width:900px) {
+      .page-layout { grid-template-columns: 1fr; }
+      .basket-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 320px; transform: translateX(100%); transition: transform 0.3s ease; z-index: 150; height: 100vh; }
+      .basket-panel.open { transform: translateX(0); box-shadow: -8px 0 40px rgba(0,0,0,0.6); }
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .float-basket { display: block; }
+      .page-header { padding: 2rem 1.5rem; }
+      .menu-section { padding: 1.5rem; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="float-basket" id="floatBasket" onclick="toggleBasket()">🛒 Basket <span id="floatCount" style="display:none;"></span></button>
+
+<nav>
+  <a href="index.html" class="nav-logo"><img src="logo.png" alt="Hungry Kebab" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="order.html" class="active">Menu & Order</a></li>
+    <li><a href="index.html#find-us">Find Us</a></li>
+    <li><a href="about.html">About Us</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="login.html">Login</a></li>
+    <li><a href="order.html" class="nav-order-btn">Order Now</a></li>
+  </ul>
+  <div style="display:flex;gap:0.75rem;align-items:center;">
+    <button class="basket-nav-btn" onclick="toggleBasket()" id="basketNavBtn">
+      <i class="ti ti-shopping-bag"></i> Basket
+      <span class="basket-count hidden" id="basketCount">0</span>
+    </button>
+    <button class="hamburger" onclick="toggleNav()"><i class="ti ti-menu-2"></i></button>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a>
+  <a href="order.html">Menu & Order</a>
+  <a href="index.html#find-us">Find Us</a>
+  <a href="about.html">About Us</a>
+  <a href="events.html">Events</a>
+  <a href="login.html">Login</a>
+  <a href="order.html">Order Now</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <canvas id="bokehCanvas"></canvas>
+  <div class="page-header-content">
+    <div>
+      <h1>Browse. <em>Add. Order.</em></h1>
+      <p>Fresh off the grill · Davy Road, Cambridge · 4PM – 12AM daily · 07862 056385</p>
+    </div>
+    <div class="open-indicator" id="openIndicator">
+      <span class="open-dot" id="openDot"></span>
+      <span id="openText">Checking hours...</span>
+    </div>
+  </div>
+</div>
+
+<div class="page-layout">
+
+  <!-- MENU -->
+  <div class="menu-panel">
+    <div class="tabs-wrapper">
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('kebabs',this)">🥙 Kebabs</button>
+        <button class="tab-btn" onclick="showTab('mixkebab',this)">🥙 Mix Kebab</button>
+        <button class="tab-btn" onclick="showTab('wraps',this)">🌯 Wraps</button>
+        <button class="tab-btn" onclick="showTab('burgers',this)">🍔 Burgers</button>
+        <button class="tab-btn" onclick="showTab('wings',this)">🍗 Wings</button>
+        <button class="tab-btn" onclick="showTab('sides',this)">🍟 Sides</button>
+        <button class="tab-btn" onclick="showTab('loaded',this)">🍟 Loaded Fries</button>
+        <button class="tab-btn" onclick="showTab('kids',this)">🧸 Kids</button>
+        <button class="tab-btn" onclick="showTab('drinks',this)">🥤 Drinks & Desserts</button>
+        <button class="tab-btn" onclick="showTab('deals',this)">✨ Meal Deals</button>
+      </div>
+    </div>
+
+    <div class="menu-section active" id="tab-kebabs"><div class="items-list" id="list-kebabs"></div></div>
+    <div class="menu-section" id="tab-mixkebab"><div class="items-list" id="list-mixkebab"></div></div>
+    <div class="menu-section" id="tab-wraps"><div class="items-list" id="list-wraps"></div></div>
+    <div class="menu-section" id="tab-burgers"><div class="items-list" id="list-burgers"></div></div>
+    <div class="menu-section" id="tab-wings"><div class="items-list" id="list-wings"></div></div>
+    <div class="menu-section" id="tab-sides"><div class="items-list" id="list-sides"></div></div>
+    <div class="menu-section" id="tab-loaded"><div class="items-list" id="list-loaded"></div></div>
+    <div class="menu-section" id="tab-kids"><div class="items-list" id="list-kids"></div></div>
+    <div class="menu-section" id="tab-drinks"><div class="items-list" id="list-drinks"></div></div>
+    <div class="menu-section" id="tab-deals"><div class="items-list" id="list-deals"></div></div>
+  </div>
+
+  <!-- BASKET -->
+  <div class="basket-panel" id="basketPanel">
+    <div class="basket-header">
+      <h2>Your Basket</h2>
+      <p>Open daily · 4PM – 12AM</p>
+      <div class="order-type">
+        <button class="order-type-btn active" onclick="setOrderType('collection',this)">Collection</button>
+        <button class="order-type-btn" onclick="setOrderType('delivery',this)">Delivery</button>
+      </div>
+    </div>
+    <div class="basket-items" id="basketItems">
+      <div class="basket-empty"><i class="ti ti-shopping-bag"></i><p>Your basket is empty.<br>Add some items to get started!</p></div>
+    </div>
+    <div class="basket-footer">
+      <div class="basket-totals" id="basketTotals" style="display:none;">
+        <div class="basket-row"><span>Subtotal</span><span id="subtotal">£0.00</span></div>
+        <div class="basket-row" id="deliveryRow" style="display:none;"><span>Delivery</span><span>£2.50</span></div>
+        <div class="basket-row total"><span>Total</span><span id="totalPrice">£0.00</span></div>
+      </div>
+      <button class="checkout-btn" id="checkoutBtn" disabled onclick="openCheckout()">Go to Checkout</button>
+      <p class="min-order">Minimum order £8.00</p>
+    </div>
+  </div>
+</div>
+
+<!-- ITEM OPTIONS MODAL -->
+<div class="options-overlay" id="optionsOverlay">
+  <div class="options-modal">
+    <div class="options-header">
+      <div>
+        <h3 id="optionsTitle">Item Name</h3>
+        <p id="optionsDesc"></p>
+      </div>
+      <button class="close-options" onclick="closeOptions()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="options-body" id="optionsBody"></div>
+    <div class="options-footer">
+      <div class="options-total">
+        <span>Item total</span>
+        <strong id="optionsTotal">£0.00</strong>
+      </div>
+      <button class="options-add-btn" onclick="confirmAddItem()">Add to Basket</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHECKOUT OVERLAY -->
+<div class="checkout-overlay" id="checkoutOverlay">
+  <div class="checkout-modal">
+    <div id="checkoutFormWrap">
+      <div class="checkout-modal-header">
+        <h2>Checkout</h2>
+        <button class="close-modal" onclick="closeCheckout()"><i class="ti ti-x"></i></button>
+      </div>
+      <div class="checkout-form">
+        <div class="order-summary-mini" id="orderSummaryMini"></div>
+        <p class="form-section-title">Your details</p>
+        <div class="form-row">
+          <div class="form-group"><label>First name</label><input type="text" id="firstName" placeholder="Ali" /></div>
+          <div class="form-group"><label>Last name</label><input type="text" id="lastName" placeholder="Yeter" /></div>
+        </div>
+        <div class="form-group"><label>Phone number</label><input type="tel" id="phone" placeholder="+44 7700 000000" /></div>
+        <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="you@email.com" /></div>
+        <div id="deliveryFields" style="display:none;">
+          <p class="form-section-title">Delivery address</p>
+          <div class="form-group"><label>Address line 1</label><input type="text" id="addr1" placeholder="123 High Street" /></div>
+          <div class="form-group"><label>Address line 2</label><input type="text" id="addr2" placeholder="Flat 2 (optional)" /></div>
+          <div class="form-row">
+            <div class="form-group"><label>City</label><input type="text" id="city" placeholder="Cambridge" /></div>
+            <div class="form-group"><label>Postcode</label><input type="text" id="postcode" placeholder="CB1 1AA" /></div>
+          </div>
+        </div>
+        <p class="form-section-title">Payment</p>
+        <div class="form-group">
+          <label>Payment method</label>
+          <select id="paymentMethod">
+            <option value="">Select payment method</option>
+            <option value="card">Pay by Card</option>
+            <option value="cash">Pay with Cash</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Special instructions</label><textarea id="instructions" placeholder="Any allergies or special requests?"></textarea></div>
+        <button class="place-order-btn" onclick="placeOrder()">Place Order</button>
+        <p class="payment-note"><i class="ti ti-lock" style="font-size:0.85rem;"></i> Card payment integration coming soon</p>
+      </div>
+    </div>
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">🎉</div>
+      <h2>Order placed!</h2>
+      <p>Thanks for your order. We're getting it ready now.</p>
+      <p>We'll call you on <strong id="confirmPhone"></strong> when it's ready.</p>
+      <p class="order-number" id="orderNumber"></p>
+      <br>
+      <button class="place-order-btn" onclick="closeCheckout()" style="max-width:200px;margin:0 auto;">Done</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <a href="index.html" class="footer-logo"><img src="logo.png" alt="Hungry Kebab" style="height:40px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+  <div class="footer-socials">
+    <a href="https://instagram.com/hungrykebab.cambridge" target="_blank"><i class="ti ti-brand-instagram"></i> Instagram</a>
+    <a href="https://facebook.com/Hungrykebab.Cambridge" target="_blank"><i class="ti ti-brand-facebook"></i> Facebook</a>
+  </div>
+  <p>© 2026 Hungry Kebab · Cambridge</p>
+</footer>
+
+<script>
+// ── FULL MENU DATA (from official 2026 menu) ──
+var menuData = {
+  kebabs: {
+    note: 'All served with pitta, salad and sauce.',
+    extras: [
+      { id:'curly', name:'Change chips to Curly Fries', price:1.50 },
+      { id:'turkey', name:'Add Turkey Bacon', price:2.00 },
+      { id:'halloumi', name:'Add Halloumi', price:2.00 },
+    ],
+    items: [
+      { id:'kb1', name:'Lamb Doner', desc:'Served with pitta, salad and sauce', sizes:[{l:'S',p:8.00},{l:'L',p:9.50},{l:'XL',p:12.00}] },
+      { id:'kb2', name:'Chicken Doner', desc:'Served with pitta, salad and sauce', sizes:[{l:'S',p:9.00},{l:'L',p:10.00},{l:'XL',p:12.00}] },
+      { id:'kb3', name:'Chicken Shish', desc:'Served with pitta, salad and sauce', sizes:[{l:'S',p:9.00},{l:'L',p:10.00},{l:'XL',p:12.00}] },
+      { id:'kb4', name:'Lamb Shish', desc:'Served with pitta, salad and sauce', sizes:[{l:'S',p:9.00},{l:'L',p:13.00},{l:'XL',p:15.00}] },
+      { id:'kb5', name:'Kofte', desc:'Served with pitta, salad and sauce', sizes:[{l:'S',p:8.50},{l:'L',p:10.00},{l:'XL',p:13.00}] },
+      { id:'kb6', name:'Falafel and Hummus Kebab', desc:'Served with pitta, salad and sauce', sizes:[{l:'S',p:10.00},{l:'L',p:11.00},{l:'XL',p:12.00}], badge:'veg' },
+      { id:'kb7', name:'Meat and Chips', desc:'Doner meat and chips with sauce and salad', sizes:[{l:'S',p:8.50},{l:'L',p:9.50},{l:'XL',p:12.50}] },
+      { id:'kb8', name:'Chicken Doner and Chips', desc:'Chicken doner with chips, sauce and salad', sizes:[{l:'S',p:9.50},{l:'L',p:10.50},{l:'XL',p:12.50}] },
+    ]
+  },
+  mixkebab: {
+    note: 'All served with pitta, salad and sauce. Change Pitta for Chips +£1.50',
+    extras: [
+      { id:'chips', name:'Change Pitta to Chips', price:1.50 },
+    ],
+    items: [
+      { id:'mk1', name:'Mix 1', desc:'Chicken Shish, Doner and Lamb Doner', sizes:[{l:'L',p:12.00},{l:'XL',p:13.50}] },
+      { id:'mk2', name:'Mix 2', desc:'Lamb Shish, Chicken Shish and Doner', sizes:[{l:'L',p:13.00},{l:'XL',p:16.00}] },
+      { id:'mk3', name:'Mix 3', desc:'Lamb Doner, Chicken Shish, Doner and Kofte', sizes:[{l:'L',p:14.00},{l:'XL',p:15.00}] },
+    ]
+  },
+  wraps: {
+    note: 'All served with salad and sauce. Add Fried Mushroom +£1.50 · Add Turkey Bacon +£2.00',
+    extras: [
+      { id:'mush', name:'Add Fried Mushroom', price:1.50 },
+      { id:'turkey', name:'Add Turkey Bacon', price:2.00 },
+      { id:'avo', name:'Add Avocado', price:2.00 },
+      { id:'hall', name:'Add Halloumi', price:2.00 },
+    ],
+    items: [
+      { id:'wr1', name:'Doner Wrap', desc:'', sizes:[{l:'S',p:8.50},{l:'L',p:10.00},{l:'XL',p:11.00}] },
+      { id:'wr2', name:'Chicken Doner Wrap', desc:'', sizes:[{l:'S',p:9.00},{l:'L',p:10.00},{l:'XL',p:12.00}] },
+      { id:'wr3', name:'Chicken Shish Wrap', desc:'', sizes:[{l:'S',p:9.00},{l:'L',p:10.00},{l:'XL',p:12.00}] },
+      { id:'wr4', name:'Chicken & Lamb Shish Wrap', desc:'', sizes:[{l:'S',p:11.50},{l:'L',p:12.50},{l:'XL',p:13.50}] },
+      { id:'wr5', name:'Lamb Shish Wrap', desc:'', sizes:[{l:'S',p:9.00},{l:'L',p:13.00},{l:'XL',p:15.00}] },
+      { id:'wr6', name:'Kofte Wrap', desc:'Add Cheddar Cheese +£2.00', sizes:[{l:'S',p:8.50},{l:'L',p:10.00},{l:'XL',p:12.00}], extraNote:'Add Cheddar Cheese +£2.00' },
+      { id:'wr7', name:'Falafel Wrap', desc:'Halloumi +£2.00 · Hummus +£2.00', sizes:[{l:'S',p:6.50},{l:'L',p:7.50},{l:'XL',p:8.50}], badge:'veg' },
+      { id:'wr8', name:'Lahmacun', desc:'Home-made', price:6.50 },
+      { id:'wr9', name:'Lahmacun with Doner', desc:'Home-made', price:8.50 },
+      { id:'wr10', name:'Lahmacun with Chicken Shish', desc:'Home-made', price:10.00 },
+      { id:'wr11', name:'Fried Chicken Wrap', desc:'Southern fried', sizes:[{l:'S',p:8.00},{l:'L',p:9.00},{l:'XL',p:10.00}] },
+      { id:'wr12', name:'Halloumi Wrap', desc:'', sizes:[{l:'S',p:6.50},{l:'L',p:7.50},{l:'XL',p:8.50}] },
+      { id:'wr13', name:'Garlic Sausage & Halloumi Wrap', desc:'', sizes:[{l:'S',p:8.00},{l:'L',p:9.00},{l:'XL',p:10.00}] },
+    ]
+  },
+  burgers: {
+    note: 'All served with salad and sauce. Add Hash Brown or Turkey Bacon +£2.00',
+    extras: [
+      { id:'hash', name:'Add Hash Brown or Turkey Bacon', price:2.00 },
+    ],
+    items: [
+      { id:'bu1', name:'1/4 Cheese Burger', desc:'', price:6.00 },
+      { id:'bu2', name:'1/2 Cheese Burger', desc:'', price:7.50 },
+      { id:'bu3', name:'Triple Cheeseburger', desc:'', price:9.50 },
+      { id:'bu4', name:'Eggy Burger', desc:'', price:6.50 },
+      { id:'bu5', name:'Chicken Burger', desc:'', price:6.50 },
+      { id:'bu6', name:'Double Chicken Burger', desc:'', price:8.00 },
+      { id:'bu7', name:'Veggie Burger', desc:'', price:5.50, badge:'veg' },
+      { id:'bu8', name:'1/4 Burger with Doner', desc:'', price:7.50 },
+      { id:'bu9', name:'Doner Roll', desc:'', price:5.50 },
+      { id:'bu10', name:'Chicken Shish Roll', desc:'', price:6.00 },
+      { id:'bu11', name:'Grilled Halloumi Burger', desc:'', price:5.50 },
+      { id:'bu12', name:'Special Hungry Burger', desc:'Beef burger and chicken burger', price:8.50 },
+    ]
+  },
+  wings: {
+    note: '',
+    extras: [],
+    items: [
+      { id:'wi1', name:'Fried Piri Piri Wings', desc:'', price:7.50 },
+      { id:'wi2', name:'BBQ Wings', desc:'', price:7.50 },
+      { id:'wi3', name:'Chilli Wings', desc:'', price:7.50 },
+      { id:'wi4', name:'Cheesy Wings', desc:'', price:7.00 },
+      { id:'wi5', name:'5pcs Wings', desc:'', price:6.00 },
+      { id:'wi6', name:'10pcs Wings', desc:'', price:11.00 },
+    ]
+  },
+  sides: {
+    note: '',
+    extras: [
+      { id:'cheese', name:'Add Cheese (Curly Fries)', price:1.50 },
+    ],
+    items: [
+      { id:'si1', name:'Chips', desc:'', sizes:[{l:'S',p:3.50},{l:'L',p:4.50},{l:'XL',p:5.50}] },
+      { id:'si2', name:'Cheese Chips', desc:'', sizes:[{l:'S',p:4.50},{l:'L',p:5.50},{l:'XL',p:6.50}] },
+      { id:'si3', name:'Chips and Salad in Pitta', desc:'', sizes:[{l:'S',p:6.00},{l:'L',p:6.50}] },
+      { id:'si4', name:'Curly Fries', desc:'Add Cheese +£1.50', sizes:[{l:'S',p:5.00},{l:'L',p:6.00},{l:'XL',p:7.50}] },
+      { id:'si5', name:'Chicken Strips 4pcs', desc:'', price:5.50 },
+      { id:'si6', name:'Popcorn Chicken 10pcs', desc:'', price:5.50 },
+      { id:'si7', name:'Chicken Nuggets 6pcs', desc:'', price:5.00 },
+      { id:'si8', name:'Falafel 4pcs', desc:'', price:4.50, badge:'veg' },
+      { id:'si9', name:'Onion Rings 10pcs', desc:'', price:6.00 },
+      { id:'si10', name:'Mozzarella Sticks 5pcs', desc:'', price:5.50 },
+      { id:'si11', name:'Hashbrown', desc:'', price:2.00 },
+      { id:'si12', name:'Feta Cheese Borek 4pcs', desc:'', price:4.00 },
+      { id:'si13', name:'Sucuk 4pcs', desc:'', price:5.00, badge:'halal' },
+      { id:'si14', name:'Hummus and Pitta', desc:'', price:5.00 },
+      { id:'si15', name:'Grilled Halloumi 4pcs', desc:'', price:5.00 },
+      { id:'si16', name:'Extra Pitta', desc:'', price:1.00 },
+      { id:'si17', name:'Pot of Sauce', desc:'Any sauce of your choice', price:1.00 },
+    ]
+  },
+  loaded: {
+    note: '',
+    extras: [],
+    items: [
+      { id:'lo1', name:'Hungry Kebab Special Box', desc:'Chicken & Lamb Doner mixed with garlic sauce & yoghurt mint sauce on top of cheese chips with 2 grilled peppers', price:16.00 },
+      { id:'lo2', name:'Hungry Meat Box', desc:'Doner meat, cheddar cheese, gherkin, onions, ketchup, mayo, garnished with parsley', price:10.50 },
+      { id:'lo3', name:'Kofte Box', desc:'Diced kofte, cheddar cheese, yoghurt mint chilli sauce, peppers, parsley', price:10.50 },
+      { id:'lo4', name:'Saucy Chilli Chicken Box', desc:"Chicken doner, chef's special sauce, chilli sauce, cheddar cheese, crispy onions, garnished with spring onions", price:10.00 },
+      { id:'lo5', name:'Cheese Burger Box', desc:'2 beef burgers, onions, pickles, burger sauce, garnished with spring onions', price:9.50 },
+      { id:'lo6', name:'Fried Chicken Box', desc:'Fried chicken, cheese, BBQ sauce, ranch, crispy onion, garnished with spring onion', price:9.50 },
+    ]
+  },
+  kids: {
+    note: 'All kids meals served with a Caprisun drink.',
+    extras: [],
+    items: [
+      { id:'ki1', name:'🕷️ Spiderman', desc:'Chicken Nuggets, Chips & Caprisun', price:6.50 },
+      { id:'ki2', name:'🌈 Cocomelon', desc:'Chicken Doner, Chips & Caprisun', price:7.00 },
+      { id:'ki3', name:'🍩 The Simpsons', desc:'Meat, Chips & Caprisun', price:7.00 },
+      { id:'ki4', name:'💗 Barbie', desc:'Chicken or Beef Burger, Chips & Caprisun', price:7.50 },
+    ]
+  },
+  drinks: {
+    note: '',
+    extras: [],
+    items: [
+      { id:'dr1', name:'Can of Drink', desc:'Coke, Fanta, etc.', price:1.80 },
+      { id:'dr2', name:'Water', desc:'', price:1.50 },
+      { id:'dr3', name:'Red Bull', desc:'', price:3.00 },
+      { id:'dr4', name:'Ayran', desc:'', price:1.50 },
+      { id:'dr5', name:'1.5L Bottle Drink', desc:'', price:3.40 },
+      { id:'dr6', name:'Baklava', desc:'Turkish baklava', price:5.00 },
+    ]
+  },
+  deals: {
+    note: 'All served with salad and sauce. Add Fried Mushroom +£1.50 · Add Turkey Bacon +£2.00',
+    extras: [
+      { id:'mush', name:'Add Fried Mushroom', price:1.50 },
+      { id:'turkey', name:'Add Turkey Bacon', price:2.00 },
+    ],
+    items: [
+      { id:'de1', name:'Meal 1 — Doner Chips & Drink', desc:'Small Doner, Chips and Drink. Make Large +£1.50', price:12.50, extraNote:'Make Large +£1.50' },
+      { id:'de2', name:'Meal 2 — 1/4 Burger Chips & Drink', desc:'1/4 Burger, Chips and Drink', price:10.50 },
+      { id:'de3', name:'Meal 3 — 1/2 Burger Chips & Drink', desc:'1/2 Burger, Chips and Drink', price:12.00 },
+      { id:'de4', name:'Meal 4 — Chicken Burger Chips & Drink', desc:'Chicken Burger, Chips and Drink', price:10.50 },
+      { id:'de5', name:'Meal 5 — Chicken Shish Chips & Drink', desc:'Small Chicken Shish, Chips and Drink. Make Large +£1.50', price:13.00, extraNote:'Make Large +£1.50' },
+      { id:'de6', name:'Meal 6 — Chicken Doner Chips & Drink', desc:'Small Chicken Doner, Chips and Drink. Make Large +£1.50', price:13.00, extraNote:'Make Large +£1.50' },
+      { id:'de7', name:'Meal 7 — 5 Wings Chips & Drink', desc:'5 Wings, Chips and Drink', price:10.00 },
+      { id:'de8', name:'Meal 8 — Lahmacun Wrap Chips & Drink', desc:'Lahmacun Wrap, Chips and Drink. Add Lamb/Chicken Doner +£3.00', price:11.00, extraNote:'Add Lamb/Chicken Doner +£3.00' },
+      { id:'de9', name:'Meal 9 — Chicken Doner Wrap Chips & Drink', desc:'Small Chicken Doner Wrap, Chips and Drink. Make Large +£1.50', price:13.50, extraNote:'Make Large +£1.50' },
+      { id:'de10', name:'Meal 10 — Doner Wrap Chips & Drink', desc:'Small Doner Wrap, Chips and Drink. Make Large +£1.50', price:12.50, extraNote:'Make Large +£1.50' },
+      { id:'de11', name:'Meal 11 — Chicken/Doner Roll Chips & Drink', desc:'Chicken Roll or Doner Roll, Chips and Drink', price:10.50 },
+    ]
+  },
+};
+
+// ── STATE ──
+var basket = [];
+var orderType = 'collection';
+var currentItem = null;
+var currentCat = null;
+var selectedSize = null;
+var selectedExtras = [];
+
+// ── BOKEH ──
+var bc = document.getElementById('bokehCanvas');
+var bctx = bc.getContext('2d');
+var bokeh = [];
+function resizeBokeh() { bc.width = bc.offsetWidth; bc.height = bc.offsetHeight; }
+resizeBokeh();
+window.addEventListener('resize', resizeBokeh);
+for (var i = 0; i < 18; i++) {
+  bokeh.push({ x:Math.random()*1400, y:Math.random()*200, r:Math.random()*40+15, speedX:(Math.random()-0.5)*0.3, speedY:(Math.random()-0.5)*0.15, opacity:Math.random()*0.07+0.02, pulse:Math.random()*Math.PI*2 });
+}
+function animateBokeh() {
+  bctx.clearRect(0,0,bc.width,bc.height);
+  bokeh.forEach(function(b) {
+    b.x+=b.speedX; b.y+=b.speedY; b.pulse+=0.008;
+    if(b.x<-b.r) b.x=bc.width+b.r; if(b.x>bc.width+b.r) b.x=-b.r;
+    if(b.y<-b.r) b.y=bc.height+b.r; if(b.y>bc.height+b.r) b.y=-b.r;
+    var op=b.opacity*(0.6+0.4*Math.sin(b.pulse));
+    var grad=bctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r);
+    grad.addColorStop(0,'rgba(201,168,76,'+op+')'); grad.addColorStop(1,'rgba(201,168,76,0)');
+    bctx.beginPath(); bctx.arc(b.x,b.y,b.r,0,Math.PI*2); bctx.fillStyle=grad; bctx.fill();
+  });
+  requestAnimationFrame(animateBokeh);
+}
+animateBokeh();
+
+// ── OPEN INDICATOR ──
+function checkOpen() {
+  var h = new Date().getHours();
+  var isOpen = h >= 16 || h < 1;
+  document.getElementById('openDot').className = 'open-dot ' + (isOpen?'open':'closed');
+  document.getElementById('openText').textContent = isOpen ? 'Open now — closes midnight' : 'Opens at 4:00 PM today';
+}
+checkOpen();
+
+// ── RENDER MENU ──
+function renderMenus() {
+  Object.keys(menuData).forEach(function(cat) {
+    var catData = menuData[cat];
+    var list = document.getElementById('list-' + cat);
+    if (!list) return;
+
+    var html = '';
+    if (catData.note) html += '<div class="section-note">' + catData.note + '</div>';
+
+    html += catData.items.map(function(item) {
+      var badge = '';
+      if (item.badge === 'pop') badge = '<span class="item-badge badge-pop">Popular</span>';
+      if (item.badge === 'veg') badge = '<span class="item-badge badge-veg">Vegetarian</span>';
+      if (item.badge === 'halal') badge = '<span class="item-badge badge-halal">Halal</span>';
+
+      var priceHtml = '';
+      if (item.sizes) {
+        var min = item.sizes[0].p;
+        var max = item.sizes[item.sizes.length-1].p;
+        priceHtml = '<span class="item-price">£' + min.toFixed(2) + (item.sizes.length > 1 ? ' – £'+max.toFixed(2) : '') + '</span>';
+      } else {
+        priceHtml = '<span class="item-price">£' + item.price.toFixed(2) + '</span>';
+      }
+
+      var hasOptions = item.sizes || (catData.extras && catData.extras.length > 0);
+
+      return '<div class="item-row" id="row-'+item.id+'">' +
+        '<div class="item-row-info">' +
+          '<h3>' + item.name + '</h3>' +
+          (item.desc ? '<p>' + item.desc + '</p>' : '') +
+          (item.extraNote ? '<p class="item-extras-note">'+item.extraNote+'</p>' : '') +
+          (badge ? '<div class="item-badges">'+badge+'</div>' : '') +
+        '</div>' +
+        '<div class="item-row-right">' +
+          priceHtml +
+          '<div id="ctrl-'+item.id+'">' +
+            '<button class="add-btn" onclick="openOptions(\''+item.id+'\',\''+cat+'\',this)">+</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    list.innerHTML = html;
+  });
+
+  animateRows('tab-kebabs');
+}
+
+function animateRows(tabId) {
+  var rows = document.querySelectorAll('#' + tabId + ' .item-row');
+  rows.forEach(function(r,i) { r.classList.remove('show'); r.style.animationDelay=(i*30)+'ms'; });
+  setTimeout(function() { rows.forEach(function(r) { r.classList.add('show'); }); }, 10);
+}
+
+// ── OPTIONS MODAL ──
+function openOptions(id, cat, btn) {
+  btn.classList.add('pop');
+  setTimeout(function() { btn.classList.remove('pop'); }, 300);
+
+  var catData = menuData[cat];
+  currentItem = catData.items.find(function(i) { return i.id === id; });
+  currentCat = cat;
+  selectedSize = currentItem.sizes ? currentItem.sizes[0] : null;
+  selectedExtras = [];
+
+  // If no sizes and no extras, just add directly
+  if (!currentItem.sizes && (!catData.extras || catData.extras.length === 0)) {
+    addToBasket(currentItem, cat, null, []);
+    return;
+  }
+
+  document.getElementById('optionsTitle').textContent = currentItem.name;
+  document.getElementById('optionsDesc').textContent = currentItem.desc || '';
+
+  var body = '';
+
+  if (currentItem.sizes) {
+    body += '<p class="options-section-label">Choose size</p>';
+    body += '<div class="size-options">';
+    currentItem.sizes.forEach(function(s, i) {
+      body += '<button class="size-btn'+(i===0?' selected':'')+'" onclick="selectSize(this,\''+s.l+'\','+s.p+')">' +
+        '<span class="size-label">'+s.l+'</span>' +
+        '<span class="size-price">£'+s.p.toFixed(2)+'</span>' +
+      '</button>';
+    });
+    body += '</div>';
+  }
+
+  if (catData.extras && catData.extras.length > 0) {
+    body += '<p class="options-section-label">Add extras</p>';
+    body += '<div class="extras-list">';
+    catData.extras.forEach(function(e) {
+      body += '<div class="extra-item" id="extra-'+e.id+'" onclick="toggleExtra(\''+e.id+'\','+e.price+',this)">' +
+        '<div class="extra-item-left">' +
+          '<div class="extra-checkbox"></div>' +
+          '<span class="extra-name">'+e.name+'</span>' +
+        '</div>' +
+        '<span class="extra-price">+£'+e.price.toFixed(2)+'</span>' +
+      '</div>';
+    });
+    body += '</div>';
+  }
+
+  document.getElementById('optionsBody').innerHTML = body;
+  updateOptionsTotal();
+  document.getElementById('optionsOverlay').classList.add('open');
+}
+
+function selectSize(btn, label, price) {
+  document.querySelectorAll('.size-btn').forEach(function(b) { b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  selectedSize = { l: label, p: price };
+  updateOptionsTotal();
+}
+
+function toggleExtra(id, price, el) {
+  el.classList.toggle('selected');
+  var idx = selectedExtras.findIndex(function(e) { return e.id === id; });
+  if (idx === -1) {
+    selectedExtras.push({ id: id, price: price });
+  } else {
+    selectedExtras.splice(idx, 1);
+  }
+  updateOptionsTotal();
+}
+
+function updateOptionsTotal() {
+  var base = selectedSize ? selectedSize.p : (currentItem ? currentItem.price : 0);
+  var extrasTotal = selectedExtras.reduce(function(a,e) { return a+e.price; }, 0);
+  document.getElementById('optionsTotal').textContent = '£' + (base + extrasTotal).toFixed(2);
+}
+
+function closeOptions() {
+  document.getElementById('optionsOverlay').classList.remove('open');
+  currentItem = null; currentCat = null; selectedSize = null; selectedExtras = [];
+}
+
+function confirmAddItem() {
+  if (!currentItem) return;
+  addToBasket(currentItem, currentCat, selectedSize, selectedExtras.slice());
+  closeOptions();
+  glowBasket();
+}
+
+function addToBasket(item, cat, size, extras) {
+  var basePrice = size ? size.p : item.price;
+  var extrasPrice = extras.reduce(function(a,e) { return a+e.price; }, 0);
+  var totalPrice = basePrice + extrasPrice;
+
+  var extrasText = [];
+  if (size) extrasText.push(size.l);
+  if (extras.length > 0) {
+    var catExtras = menuData[cat].extras;
+    extras.forEach(function(e) {
+      var found = catExtras.find(function(ce) { return ce.id === e.id; });
+      if (found) extrasText.push(found.name);
+    });
+  }
+
+  var basketKey = item.id + '-' + (size ? size.l : 'std') + '-' + extras.map(function(e){return e.id;}).join(',');
+  var existing = basket.find(function(b) { return b.key === basketKey; });
+
+  if (existing) {
+    existing.qty++;
+  } else {
+    basket.push({
+      key: basketKey, id: item.id, name: item.name,
+      sub: extrasText.join(' · '),
+      unitPrice: totalPrice, qty: 1
+    });
+  }
+  renderBasket();
+}
+
+function changeQty(key, delta) {
+  var idx = basket.findIndex(function(b) { return b.key === key; });
+  if (idx === -1) return;
+  basket[idx].qty += delta;
+  if (basket[idx].qty <= 0) basket.splice(idx, 1);
+  renderBasket();
+}
+
+function glowBasket() {
+  var panel = document.getElementById('basketPanel');
+  panel.classList.add('glow');
+  setTimeout(function() { panel.classList.remove('glow'); }, 600);
+}
+
+function renderBasket() {
+  var el = document.getElementById('basketItems');
+  var count = basket.reduce(function(a,b) { return a+b.qty; }, 0);
+  var subtotal = basket.reduce(function(a,b) { return a+(b.unitPrice*b.qty); }, 0);
+  var delivery = orderType === 'delivery' ? 2.50 : 0;
+  var total = subtotal + delivery;
+
+  var countEl = document.getElementById('basketCount');
+  var navBtn = document.getElementById('basketNavBtn');
+  var floatBtn = document.getElementById('floatBasket');
+  var floatCount = document.getElementById('floatCount');
+
+  if (count > 0) {
+    countEl.textContent = count; countEl.classList.remove('hidden');
+    navBtn.classList.add('has-items');
+    floatBtn.classList.add('has-items');
+    floatCount.textContent = ' ('+count+')'; floatCount.style.display='inline';
+  } else {
+    countEl.classList.add('hidden');
+    navBtn.classList.remove('has-items');
+    floatBtn.classList.remove('has-items');
+    floatCount.style.display='none';
+  }
+
+  if (basket.length === 0) {
+    el.innerHTML = '<div class="basket-empty"><i class="ti ti-shopping-bag"></i><p>Your basket is empty.<br>Add some items to get started!</p></div>';
+    document.getElementById('basketTotals').style.display = 'none';
+    document.getElementById('checkoutBtn').disabled = true;
+    return;
+  }
+
+  el.innerHTML = basket.map(function(b) {
+    return '<div class="basket-item">' +
+      '<div class="basket-item-info">' +
+        '<h4>' + b.name + '</h4>' +
+        (b.sub ? '<div class="item-sub">' + b.sub + '</div>' : '') +
+        '<div class="item-price-line">£' + (b.unitPrice * b.qty).toFixed(2) + '</div>' +
+      '</div>' +
+      '<div class="basket-item-qty">' +
+        '<button onclick="changeQty(\'' + b.key + '\',-1)">−</button>' +
+        '<span>' + b.qty + '</span>' +
+        '<button onclick="changeQty(\'' + b.key + '\',1)">+</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  document.getElementById('basketTotals').style.display = 'block';
+  document.getElementById('subtotal').textContent = '£' + subtotal.toFixed(2);
+  document.getElementById('totalPrice').textContent = '£' + total.toFixed(2);
+  document.getElementById('deliveryRow').style.display = orderType === 'delivery' ? 'flex' : 'none';
+  document.getElementById('checkoutBtn').disabled = subtotal < 8;
+}
+
+function setOrderType(type, btn) {
+  orderType = type;
+  document.querySelectorAll('.order-type-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('deliveryFields').style.display = type === 'delivery' ? 'block' : 'none';
+  renderBasket();
+}
+
+function toggleBasket() {
+  document.getElementById('basketPanel').classList.toggle('open');
+}
+
+// ── TABS ──
+function showTab(name, btn) {
+  document.querySelectorAll('.menu-section').forEach(function(s) { s.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  animateRows('tab-'+name);
+}
+
+// ── CHECKOUT ──
+function openCheckout() {
+  document.getElementById('checkoutOverlay').classList.add('open');
+  renderOrderSummary();
+  var p = JSON.parse(localStorage.getItem('hk_profile') || '{}');
+  if (p.firstName) document.getElementById('firstName').value = p.firstName;
+  if (p.lastName) document.getElementById('lastName').value = p.lastName;
+  if (p.phone) document.getElementById('phone').value = p.phone;
+  if (p.email) document.getElementById('email').value = p.email;
+  if (p.addr1) document.getElementById('addr1').value = p.addr1;
+  if (p.addr2) document.getElementById('addr2').value = p.addr2;
+  if (p.city) document.getElementById('city').value = p.city;
+  if (p.postcode) document.getElementById('postcode').value = p.postcode;
+  if (p.paymentMethod) document.getElementById('paymentMethod').value = p.paymentMethod;
+}
+
+function closeCheckout() {
+  document.getElementById('checkoutOverlay').classList.remove('open');
+  document.getElementById('checkoutFormWrap').style.display = 'block';
+  document.getElementById('successScreen').classList.remove('show');
+}
+
+function renderOrderSummary() {
+  var subtotal = basket.reduce(function(a,b) { return a+(b.unitPrice*b.qty); }, 0);
+  var delivery = orderType === 'delivery' ? 2.50 : 0;
+  document.getElementById('orderSummaryMini').innerHTML =
+    '<h4>Order summary</h4>' +
+    basket.map(function(b) {
+      return '<div class="summary-item">' +
+        '<span>' + b.qty + 'x ' + b.name + (b.sub?' ('+b.sub+')':'') + '</span>' +
+        '<span>£' + (b.unitPrice * b.qty).toFixed(2) + '</span>' +
+      '</div>';
+    }).join('') +
+    (orderType === 'delivery' ? '<div class="summary-item"><span>Delivery</span><span>£2.50</span></div>' : '') +
+    '<div class="summary-total"><span>Total</span><span>£' + (subtotal+delivery).toFixed(2) + '</span></div>';
+}
+
+function placeOrder() {
+  var fn = document.getElementById('firstName').value.trim();
+  var phone = document.getElementById('phone').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var payment = document.getElementById('paymentMethod').value;
+  if (!fn || !phone || !email || !payment) { alert('Please fill in your name, phone, email and payment method.'); return; }
+
+  var profile = {
+    firstName: fn, lastName: document.getElementById('lastName').value,
+    phone: phone, email: email, paymentMethod: payment,
+    addr1: document.getElementById('addr1').value, addr2: document.getElementById('addr2').value,
+    city: document.getElementById('city').value, postcode: document.getElementById('postcode').value,
+  };
+  localStorage.setItem('hk_profile', JSON.stringify(profile));
+
+  var subtotal = basket.reduce(function(a,b) { return a+(b.unitPrice*b.qty); }, 0);
+  var order = {
+    id: 'HK'+Date.now().toString().slice(-6),
+    date: new Date().toLocaleDateString('en-GB'),
+    time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
+    items: basket.slice(), total: (subtotal+(orderType==='delivery'?2.50:0)).toFixed(2),
+    type: orderType, status:'Confirmed'
+  };
+  var history = JSON.parse(localStorage.getItem('hk_orders') || '[]');
+  history.unshift(order);
+  localStorage.setItem('hk_orders', JSON.stringify(history));
+
+  document.getElementById('checkoutFormWrap').style.display = 'none';
+  document.getElementById('successScreen').classList.add('show');
+  document.getElementById('confirmPhone').textContent = phone;
+  document.getElementById('orderNumber').textContent = 'Order #' + order.id;
+
+  basket = [];
+  renderBasket();
+}
+
+// ── NAV ──
+function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+document.querySelectorAll('.mobile-nav a').forEach(function(l) {
+  l.addEventListener('click', function() { document.getElementById('mobileNav').classList.remove('open'); });
+});
+
+renderMenus();
+renderBasket();
+</script>
+</body>
+</html>

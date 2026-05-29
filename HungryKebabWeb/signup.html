@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account · Hungry Kebab Cambridge</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root { --gold:#C9A84C; --gold-light:#E8C96A; --gold-dark:#9A7A2E; --black:#0D0D0D; --black-soft:#1A1A1A; --black-card:#222222; --black-border:#2E2E2E; --cream:#F5F0E8; --text-muted:#888; }
+    body { font-family:'DM Sans',sans-serif; font-size:16px; background:var(--black); color:var(--cream); min-height:100vh; overflow-x:clip; }
+
+    nav { display:flex; justify-content:space-between; align-items:center; padding:1.2rem 2.5rem; background:rgba(13,13,13,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--black-border); position:sticky; top:0; z-index:100; }
+    .nav-logo { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--cream); text-decoration:none; display:flex; align-items:center; }
+    .nav-logo span { color:var(--gold); }
+    .nav-links { display:flex; gap:2rem; list-style:none; align-items:center; }
+    .nav-links a { color:var(--text-muted); text-decoration:none; font-size:0.9rem; font-weight:500; transition:color 0.2s; }
+    .nav-links a:hover { color:var(--gold); }
+    .nav-links a.active { color:var(--gold); }
+    .nav-order-btn { background:var(--gold) !important; color:var(--black) !important; padding:0.5rem 1.2rem; border-radius:4px; }
+    .hamburger { display:none; background:none; border:none; cursor:pointer; }
+    .hamburger i { color:var(--gold); font-size:1.4rem; }
+    .mobile-nav { display:none; flex-direction:column; background:var(--black-soft); padding:1rem 2rem 1.5rem; border-bottom:1px solid var(--black-border); }
+    .mobile-nav.open { display:flex; }
+    .mobile-nav a { color:var(--text-muted); text-decoration:none; font-size:1rem; padding:0.75rem 0; border-bottom:1px solid var(--black-border); transition:color 0.2s; }
+    .mobile-nav a:last-child { color:var(--black); background:var(--gold); text-align:center; border-radius:4px; border:none; margin-top:0.75rem; padding:0.75rem; }
+
+    .auth-hero { position:relative; min-height:calc(100vh - 65px); display:flex; align-items:center; justify-content:center; padding:3rem 1.5rem; overflow:hidden; }
+    #constellationCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+
+    .auth-card { position:relative; z-index:1; background:var(--black-soft); border:1px solid var(--black-border); border-radius:16px; padding:2.5rem; width:100%; max-width:460px; animation:cardIn 0.4s ease; }
+    @keyframes cardIn { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+    .auth-card::before { content:''; position:absolute; inset:-1px; border-radius:16px; background:linear-gradient(135deg,rgba(201,168,76,0.15),transparent 50%); z-index:-1; pointer-events:none; }
+
+    .auth-logo { text-align:center; margin-bottom:1.5rem; }
+    .auth-logo img { height:56px; width:auto; }
+    .auth-title { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--cream); text-align:center; margin-bottom:0.4rem; }
+    .auth-title em { color:var(--gold); font-style:italic; }
+    .auth-sub { font-size:0.85rem; color:var(--text-muted); text-align:center; margin-bottom:2rem; }
+
+    .form-section-label { font-size:0.72rem; font-weight:500; color:var(--gold); letter-spacing:1.5px; text-transform:uppercase; margin:1.5rem 0 0.8rem; padding-bottom:0.5rem; border-bottom:1px solid var(--black-border); }
+    .form-section-label:first-of-type { margin-top:0; }
+
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-group { margin-bottom:1rem; }
+    .form-group label { display:block; font-size:0.78rem; font-weight:500; color:var(--text-muted); margin-bottom:0.4rem; letter-spacing:0.5px; text-transform:uppercase; }
+    .input-wrap { position:relative; }
+    .input-wrap i { position:absolute; left:0.9rem; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:1rem; pointer-events:none; }
+    .form-group input, .form-group select { width:100%; background:var(--black-card); border:1px solid var(--black-border); border-radius:6px; padding:0.75rem 1rem 0.75rem 2.6rem; color:var(--cream); font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.9rem; outline:none; transition:border-color 0.2s, box-shadow 0.2s; }
+    .form-group select { padding-left:1rem; appearance:none; cursor:pointer; }
+    .form-group input:focus, .form-group select:focus { border-color:var(--gold-dark); box-shadow:0 0 0 3px rgba(201,168,76,0.08); }
+    .form-group input::placeholder { color:var(--text-muted); }
+    .form-group select option { background:var(--black-card); }
+    .optional-label { font-size:0.7rem; color:var(--text-muted); margin-left:0.4rem; }
+
+    .error-msg { font-size:0.78rem; color:#e74c3c; margin-top:0.4rem; display:none; }
+    .error-msg.show { display:block; }
+
+    .submit-btn { width:100%; background:var(--gold); color:var(--black); border:none; border-radius:6px; padding:0.9rem; font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.95rem; font-weight:500; cursor:pointer; transition:background 0.2s, transform 0.1s; margin-top:0.5rem; }
+    .submit-btn:hover { background:var(--gold-light); transform:translateY(-1px); }
+
+    .auth-link { text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:1.2rem; }
+    .auth-link a { color:var(--gold); text-decoration:none; font-weight:500; }
+    .auth-link a:hover { color:var(--gold-light); }
+
+    footer { background:var(--black); border-top:1px solid var(--black-border); padding:2rem 2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; }
+    .footer-logo { font-family:'Playfair Display',serif; font-size:1.2rem; color:var(--cream); text-decoration:none; display:flex; align-items:center; }
+    .footer-logo span { color:var(--gold); }
+    .footer-socials { display:flex; gap:1rem; }
+    .footer-socials a { color:var(--text-muted); text-decoration:none; font-size:0.85rem; display:flex; align-items:center; gap:0.4rem; transition:color 0.2s; }
+    .footer-socials a:hover { color:var(--gold); }
+    footer p { color:#444; font-size:0.85rem; }
+
+    @media(max-width:768px) { .nav-links{display:none;} .hamburger{display:block;} .form-row{grid-template-columns:1fr;} footer{flex-direction:column;text-align:center;} }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><img src="logo.png" alt="Hungry Kebab" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">Home</a></li>
+    <li><a href="order.html">Menu & Order</a></li>
+    <li><a href="index.html#find-us">Find Us</a></li>
+    <li><a href="about.html">About Us</a></li>
+    <li><a href="events.html">Events</a></li>
+    <li><a href="login.html" class="active">Login</a></li>
+    <li><a href="order.html" class="nav-order-btn">Order Now</a></li>
+  </ul>
+  <button class="hamburger" onclick="toggleNav()"><i class="ti ti-menu-2"></i></button>
+</nav>
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html">Home</a><a href="order.html">Menu & Order</a><a href="index.html#find-us">Find Us</a><a href="about.html">About Us</a><a href="events.html">Events</a><a href="login.html">Login</a><a href="order.html">Order Now</a>
+</div>
+
+<div class="auth-hero">
+  <canvas id="constellationCanvas"></canvas>
+  <div class="auth-card">
+    <div class="auth-logo"><img src="logo.png" alt="Hungry Kebab" /></div>
+    <h1 class="auth-title">Create your <em>account</em></h1>
+    <p class="auth-sub">Save your details for faster ordering every time</p>
+
+    <p class="form-section-label">Your details</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First name</label>
+        <div class="input-wrap"><i class="ti ti-user"></i><input type="text" id="signupFirst" placeholder="Ali" /></div>
+      </div>
+      <div class="form-group">
+        <label>Last name</label>
+        <div class="input-wrap"><i class="ti ti-user"></i><input type="text" id="signupLast" placeholder="Yeter" /></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email address</label>
+      <div class="input-wrap"><i class="ti ti-mail"></i><input type="email" id="signupEmail" placeholder="you@email.com" /></div>
+    </div>
+    <div class="form-group">
+      <label>Phone number</label>
+      <div class="input-wrap"><i class="ti ti-phone"></i><input type="tel" id="signupPhone" placeholder="+44 7700 000000" /></div>
+    </div>
+
+    <p class="form-section-label">Password</p>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrap"><i class="ti ti-lock"></i><input type="password" id="signupPassword" placeholder="Min. 6 characters" /></div>
+    </div>
+    <div class="form-group">
+      <label>Confirm password</label>
+      <div class="input-wrap"><i class="ti ti-lock-check"></i><input type="password" id="signupConfirm" placeholder="Repeat password" /></div>
+      <p class="error-msg" id="signupError">Passwords do not match.</p>
+    </div>
+
+    <p class="form-section-label">Order preferences <span class="optional-label">(optional — save for faster checkout)</span></p>
+    <div class="form-group">
+      <label>Preferred order type</label>
+      <select id="signupOrderType">
+        <option value="">Select preference</option>
+        <option value="collection">Collection</option>
+        <option value="delivery">Delivery</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Preferred payment method</label>
+      <select id="signupPayment">
+        <option value="">Select preference</option>
+        <option value="card">Pay by Card</option>
+        <option value="cash">Pay with Cash</option>
+      </select>
+    </div>
+
+    <p class="form-section-label">Delivery address <span class="optional-label">(optional)</span></p>
+    <div class="form-group">
+      <label>Address line 1</label>
+      <div class="input-wrap"><i class="ti ti-map-pin"></i><input type="text" id="signupAddr1" placeholder="123 High Street" /></div>
+    </div>
+    <div class="form-group">
+      <label>Address line 2</label>
+      <div class="input-wrap"><i class="ti ti-map-pin"></i><input type="text" id="signupAddr2" placeholder="Flat 2 (optional)" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>City</label>
+        <div class="input-wrap"><i class="ti ti-building"></i><input type="text" id="signupCity" placeholder="Cambridge" /></div>
+      </div>
+      <div class="form-group">
+        <label>Postcode</label>
+        <div class="input-wrap"><i class="ti ti-map"></i><input type="text" id="signupPostcode" placeholder="CB1 1AA" /></div>
+      </div>
+    </div>
+
+    <button class="submit-btn" onclick="handleSignup()">Create Account</button>
+    <p class="auth-link">Already have an account? <a href="login.html">Login</a></p>
+  </div>
+</div>
+
+<footer>
+  <a href="index.html" class="footer-logo"><img src="logo.png" alt="Hungry Kebab" style="height:40px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+  <div class="footer-socials">
+    <a href="https://instagram.com/hungrykebab.cambridge" target="_blank"><i class="ti ti-brand-instagram"></i> Instagram</a>
+    <a href="https://facebook.com/Hungrykebab.Cambridge" target="_blank"><i class="ti ti-brand-facebook"></i> Facebook</a>
+  </div>
+  <p>© 2026 Hungry Kebab · Cambridge</p>
+</footer>
+
+<script>
+  if (localStorage.getItem('hk_user')) window.location.href = 'account.html';
+  function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+
+  function handleSignup() {
+    var first = document.getElementById('signupFirst').value.trim();
+    var last = document.getElementById('signupLast').value.trim();
+    var email = document.getElementById('signupEmail').value.trim();
+    var phone = document.getElementById('signupPhone').value.trim();
+    var password = document.getElementById('signupPassword').value;
+    var confirm = document.getElementById('signupConfirm').value;
+    var errEl = document.getElementById('signupError');
+
+    if (!first || !email || !phone || !password) { errEl.textContent='Please fill in all required fields.'; errEl.classList.add('show'); return; }
+    if (password.length < 6) { errEl.textContent='Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+    if (password !== confirm) { errEl.textContent='Passwords do not match.'; errEl.classList.add('show'); return; }
+
+    var users = JSON.parse(localStorage.getItem('hk_users') || '[]');
+    if (users.find(function(u) { return u.email === email; })) { errEl.textContent='An account with this email already exists.'; errEl.classList.add('show'); return; }
+
+    var user = {
+      id: Date.now().toString(),
+      firstName: first, lastName: last, email: email, phone: phone, password: password,
+      orderType: document.getElementById('signupOrderType').value,
+      paymentMethod: document.getElementById('signupPayment').value,
+      addr1: document.getElementById('signupAddr1').value,
+      addr2: document.getElementById('signupAddr2').value,
+      city: document.getElementById('signupCity').value,
+      postcode: document.getElementById('signupPostcode').value,
+      joined: new Date().toLocaleDateString('en-GB'),
+    };
+
+    users.push(user);
+    localStorage.setItem('hk_users', JSON.stringify(users));
+    localStorage.setItem('hk_user', JSON.stringify(user));
+    window.location.href = 'account.html';
+  }
+
+  // Constellation
+  var canvas = document.getElementById('constellationCanvas');
+  var ctx = canvas.getContext('2d');
+  var stars = [];
+  function resize() { canvas.width=canvas.offsetWidth; canvas.height=canvas.offsetHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for (var i=0;i<60;i++) stars.push({x:Math.random()*1400,y:Math.random()*900,vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,r:Math.random()*1.5+0.5,opacity:Math.random()*0.4+0.1});
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(function(s) {
+      s.x+=s.vx; s.y+=s.vy;
+      if(s.x<0)s.x=canvas.width; if(s.x>canvas.width)s.x=0;
+      if(s.y<0)s.y=canvas.height; if(s.y>canvas.height)s.y=0;
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(201,168,76,'+s.opacity+')'; ctx.fill();
+    });
+    for(var i=0;i<stars.length;i++) for(var j=i+1;j<stars.length;j++) {
+      var dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,dist=Math.sqrt(dx*dx+dy*dy);
+      if(dist<120){ctx.beginPath();ctx.moveTo(stars[i].x,stars[i].y);ctx.lineTo(stars[j].x,stars[j].y);ctx.strokeStyle='rgba(201,168,76,'+(0.06*(1-dist/120))+')';ctx.lineWidth=0.5;ctx.stroke();}
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+</body>
+</html>

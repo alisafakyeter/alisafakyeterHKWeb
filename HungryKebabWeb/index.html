@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hungry Kebab · Cambridge</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E8C96A;
+      --gold-dark: #9A7A2E;
+      --black: #0D0D0D;
+      --black-soft: #1A1A1A;
+      --black-card: #222222;
+      --black-border: #2E2E2E;
+      --cream: #F5F0E8;
+      --text-muted: #888;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif; font-size: 16px;
+      background: var(--black);
+      color: var(--cream);
+      overflow-x: clip;
+    }
+
+    /* ── BUTTONS ── */
+    .btn-primary {
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.85rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: inline-block;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+    .btn-outline {
+      border: 1px solid var(--gold-dark);
+      color: var(--gold);
+      padding: 0.85rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      display: inline-block;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-outline:hover { border-color: var(--gold-light); color: var(--gold-light); }
+
+    /* ── NAV ── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 2.5rem;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--black-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--cream);
+      letter-spacing: 0.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+      align-items: center;
+    }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-order-btn {
+      background: var(--gold) !important;
+      color: var(--black) !important;
+      padding: 0.5rem 1.2rem;
+      border-radius: 4px;
+    }
+    .nav-order-btn:hover { background: var(--gold-light) !important; }
+
+    .hamburger { display: none; background: none; border: none; cursor: pointer; }
+    .hamburger i { color: var(--gold); font-size: 1.4rem; }
+
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      background: var(--black-soft);
+      padding: 1rem 2rem 1.5rem;
+      border-bottom: 1px solid var(--black-border);
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 1rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--black-border);
+      transition: color 0.2s;
+    }
+    .mobile-nav a:hover { color: var(--gold); }
+    .mobile-nav a:last-child {
+      color: var(--black);
+      background: var(--gold);
+      text-align: center;
+      border-radius: 4px;
+      border: none;
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      min-height: 90vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 3rem;
+      padding: 5rem 2.5rem 4rem;
+      overflow: hidden;
+      background: var(--black-soft);
+    }
+
+    #particleCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .award-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(34,34,34,0.9);
+      border: 1px solid var(--gold-dark);
+      color: var(--gold);
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 0.4rem 0.9rem;
+      border-radius: 2px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 1.2rem;
+    }
+    .hero h1 em { font-style: italic; color: var(--gold); }
+
+    .hero p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      max-width: 420px;
+    }
+
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+    .hero-image-wrap {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-image-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--gold-dark), transparent 60%);
+      z-index: -1;
+    }
+
+    .hero-image-wrap img {
+      border-radius: 12px;
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      object-position: center top;
+      display: block;
+    }
+
+    /* ── HIGHLIGHTS ── */
+    .highlights {
+      background: var(--gold);
+      padding: 1.2rem 2.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+    }
+    .highlight-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--black);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+    .highlight-item i { font-size: 1.1rem; opacity: 0.75; }
+
+    /* ── REVIEW TICKER ── */
+    .review-ticker {
+      background: var(--black-soft);
+      border-top: 1px solid var(--black-border);
+      border-bottom: 1px solid var(--black-border);
+      padding: 1.2rem 0;
+      overflow: hidden;
+    }
+
+    .ticker-track {
+      display: flex;
+      gap: 3rem;
+      animation: ticker 30s linear infinite;
+      width: max-content;
+    }
+
+    .ticker-track:hover { animation-play-state: paused; }
+
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ticker-stars { color: var(--gold); font-size: 0.8rem; letter-spacing: 2px; }
+    .ticker-text { color: var(--cream); font-size: 0.88rem; font-style: italic; }
+    .ticker-author { color: var(--text-muted); font-size: 0.78rem; }
+    .ticker-dot { color: var(--gold-dark); font-size: 1.2rem; }
+
+    /* ── SECTIONS ── */
+    .section { padding: 5rem 2.5rem; }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      color: var(--cream);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 2.5rem;
+    }
+
+    .section-header a {
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .section-header a:hover { color: var(--gold-light); }
+
+    /* ── DEALS SCROLL ── */
+    .deals-scroll-wrapper { width: 100%; }
+
+    .deals-scroll {
+      display: flex;
+      gap: 1rem;
+      overflow-x: auto;
+      padding-bottom: 1rem;
+      cursor: grab;
+      user-select: none;
+      scrollbar-width: none;
+    }
+    .deals-scroll::-webkit-scrollbar { display: none; }
+    .deals-scroll.dragging { cursor: grabbing; }
+
+    .deal-card {
+      flex: 0 0 240px;
+      background: var(--black-card);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--black-border);
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .deal-card:hover { border-color: var(--gold-dark); transform: translateY(-3px); }
+
+    .deal-card-img {
+      background: var(--black-soft);
+      height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+    }
+
+    .deal-card-body { padding: 0.9rem; }
+    .deal-card-body h3 { font-size: 0.88rem; font-weight: 500; color: var(--cream); margin-bottom: 0.2rem; }
+    .deal-card-body p { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.6rem; line-height: 1.4; }
+
+    .deal-pricing { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .deal-price { font-weight: 500; color: var(--gold); font-size: 1rem; }
+    .deal-original { font-size: 0.78rem; color: #555; text-decoration: line-through; }
+    .deal-badge { background: var(--gold); color: var(--black); font-size: 0.68rem; font-weight: 500; padding: 0.15rem 0.45rem; border-radius: 2px; }
+
+    .see-more { text-align: center; margin-top: 2rem; }
+    .see-more a {
+      border: 1px solid var(--black-border);
+      color: var(--text-muted);
+      padding: 0.75rem 1.75rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .see-more a:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* ── LOCATION ── */
+    .location-strip {
+      background: var(--black-soft);
+      border-top: 1px solid var(--black-border);
+      border-bottom: 1px solid var(--black-border);
+      padding: 4rem 2.5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .location-strip h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+    }
+
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .info-row i { color: var(--gold); font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+
+    .map-embed { border-radius: 10px; overflow: hidden; height: 240px; }
+    .map-embed iframe { width: 100%; height: 100%; border: none; }
+
+    /* ── CTA ── */
+    .cta-section {
+      background: var(--black-card);
+      border-top: 1px solid var(--black-border);
+      padding: 5rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.6rem;
+      color: var(--cream);
+      margin-bottom: 0.75rem;
+      position: relative;
+    }
+    .cta-section h2 em { font-style: italic; color: var(--gold); }
+    .cta-section p { color: var(--text-muted); margin-bottom: 2rem; font-size: 1rem; position: relative; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--black-border);
+      padding: 2rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--cream); text-decoration: none; }
+    .footer-logo span { color: var(--gold); }
+    .footer-socials { display: flex; gap: 1rem; align-items: center; }
+    .footer-socials a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+    .footer-socials a:hover { color: var(--gold); }
+    footer p { color: #444; font-size: 0.85rem; }
+
+    /* ── FLOATING ORDER BTN (mobile) ── */
+    .float-order {
+      display: none;
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 200;
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.9rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: 0.95rem;
+      text-decoration: none;
+      box-shadow: 0 4px 24px rgba(201,168,76,0.35);
+      animation: floatPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes floatPulse {
+      0%, 100% { box-shadow: 0 4px 24px rgba(201,168,76,0.35); }
+      50% { box-shadow: 0 4px 36px rgba(201,168,76,0.6); }
+    }
+
+    /* ── SCROLL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: block; }
+      .hero { grid-template-columns: 1fr; padding: 3rem 1.5rem 2.5rem; min-height: auto; }
+      .hero-image-wrap { display: none; }
+      .highlights { gap: 1.2rem; padding: 1rem 1.5rem; }
+      .section { padding: 3rem 1.5rem; }
+      .location-strip { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
+      footer { flex-direction: column; text-align: center; padding: 2rem 1.5rem; }
+      .float-order { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FLOATING ORDER BTN -->
+  <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="float-order">🔥 Order Now</a>
+
+  <nav>
+    <a href="#top" class="nav-logo"><img src="logo.png" alt="Hungry Kebab logo" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+    <ul class="nav-links">
+      <li><a href="#top">Home</a></li>
+      <li><a href="order.html">Menu & Order</a></li>
+      <li><a href="#find-us">Find Us</a></li>
+      <li><a href="about.html">About Us</a></li>
+      <li><a href="events.html">Events</a></li>
+      <li><a href="login.html">Login</a></li>
+      <li><a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="nav-order-btn">Order Now</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Open menu" onclick="toggleNav()"><i class="ti ti-menu-2"></i></button>
+  </nav>
+
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#top">Home</a>
+    <a href="order.html">Menu & Order</a>
+    <a href="#find-us">Find Us</a>
+    <a href="about.html">About Us</a>
+    <a href="events.html">Events</a>
+    <a href="login.html">Login</a>
+    <a href="https://order.netroneats.com/home?companyId=18" target="_blank">Order Now</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <canvas id="particleCanvas"></canvas>
+    <div class="hero-content">
+      <div class="award-badge"><i class="ti ti-trophy"></i> 2026 Highly Commended · Kebab Van of the Year</div>
+      <h1>Authentic<br><em>Turkish Kebabs</em><br>Done Right.</h1>
+      <p>Fresh ingredients, generous portions, and flavours straight from the grill. Open late so you're never left hungry.</p>
+      <div class="hero-btns">
+        <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="btn-primary">Order Now</a>
+        <a href="order.html" class="btn-outline">View Menu</a>
+      </div>
+    </div>
+    <div class="hero-image-wrap">
+      <img src="hero.png" alt="Hungry Kebab team serving food" />
+    </div>
+  </section>
+
+  <!-- HIGHLIGHTS -->
+  <div class="highlights reveal">
+    <div class="highlight-item"><i class="ti ti-star-filled"></i> 4.7 on TripAdvisor</div>
+    <div class="highlight-item"><i class="ti ti-trophy"></i> 2026 Highly Commended</div>
+    <div class="highlight-item"><i class="ti ti-map-pin"></i> Davy Rd, Cambridge</div>
+    <div class="highlight-item"><i class="ti ti-clock"></i> Open till midnight daily</div>
+  </div>
+
+  <!-- REVIEW TICKER -->
+  <div class="review-ticker">
+    <div class="ticker-track">
+      <!-- Real TripAdvisor reviews — duplicated for seamless loop -->
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"I can see why they won kebab van of the year. Amazing food, good portions, lovely friendly guys."</span><span class="ticker-author">— Paula G., TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Best kebabs in Cambs — really friendly people, fast service and genuine authentic kebabs."</span><span class="ticker-author">— Philippe J., TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Our favourite kebab place in Cambridge. Food never disappoints and the owner is super friendly!"</span><span class="ticker-author">— loopsylou, TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"One of the best kebabs I've had — two friendly guys, great service, gave my kids Turkish delights!"</span><span class="ticker-author">— Jon P., TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Best kebab ever. Best price, quick delivery — this is the best takeaway I've had across the whole country."</span><span class="ticker-author">— sghill23, TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Always amazing food! The chips were the best we've had from a van. 10/10."</span><span class="ticker-author">— Seren E., TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <!-- duplicate for seamless loop -->
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"I can see why they won kebab van of the year. Amazing food, good portions, lovely friendly guys."</span><span class="ticker-author">— Paula G., TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Best kebabs in Cambs — really friendly people, fast service and genuine authentic kebabs."</span><span class="ticker-author">— Philippe J., TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Our favourite kebab place in Cambridge. Food never disappoints and the owner is super friendly!"</span><span class="ticker-author">— loopsylou, TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"One of the best kebabs I've had — two friendly guys, great service, gave my kids Turkish delights!"</span><span class="ticker-author">— Jon P., TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Best kebab ever. Best price, quick delivery — this is the best takeaway I've had across the whole country."</span><span class="ticker-author">— sghill23, TripAdvisor</span></div>
+      <span class="ticker-dot">·</span>
+      <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Always amazing food! The chips were the best we've had from a van. 10/10."</span><span class="ticker-author">— Seren E., TripAdvisor</span></div>
+    </div>
+  </div>
+
+  <!-- MEAL DEALS -->
+  <section class="section reveal">
+    <p class="section-label">Meal Deals</p>
+    <div class="section-header">
+      <h2 class="section-title">Best deals in town</h2>
+      <a href="https://order.netroneats.com/home?companyId=18" target="_blank">Order now →</a>
+    </div>
+
+    <div style="display:flex;gap:0.6rem;margin-bottom:1rem;">
+      <button id="scrollLeft" onclick="document.getElementById('dealsScroll').scrollLeft -= 1040" style="background:var(--black-card);border:1px solid var(--black-border);color:var(--gold);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ti ti-chevron-left"></i></button>
+      <button id="scrollRight" onclick="document.getElementById('dealsScroll').scrollLeft += 1040" style="background:var(--black-card);border:1px solid var(--black-border);color:var(--gold);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;"><i class="ti ti-chevron-right"></i></button>
+    </div>
+
+    <div class="deals-scroll-wrapper">
+      <div class="deals-scroll" id="dealsScroll">
+        <div class="deal-card"><div class="deal-card-img">🥙</div><div class="deal-card-body"><h3>Meal 1</h3><p>Small Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 2</h3><p>1/4 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 3</h3><p>1/2 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.00</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 4</h3><p>Chicken Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 5</h3><p>Small Chicken Shish, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.00</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 6</h3><p>Small Chicken Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.00</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 7</h3><p>5 Wings, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.00</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 8</h3><p>Lahmacun Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£11.00</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 9</h3><p>Small Chicken Doner Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.50</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 10</h3><p>Small Doner Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 11</h3><p>Chicken Roll or Doner Roll, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
+      </div>
+    </div>
+
+    <div class="see-more">
+      <a href="https://order.netroneats.com/home?companyId=18" target="_blank">See all deals & order online →</a>
+    </div>
+  </section>
+
+  <!-- LOCATION -->
+  <div class="location-strip reveal" id="find-us">
+    <div>
+      <h2>Come find us</h2>
+      <div class="info-row"><i class="ti ti-map-pin"></i><span>Davy Road, Cambridge CB1 3QW</span></div>
+      <div class="info-row"><i class="ti ti-clock"></i><span>Open daily · 4:00PM – 12:00AM</span></div>
+      <div class="info-row"><i class="ti ti-phone"></i><span>+44 7862 056385</span></div>
+      <br>
+      <a href="https://www.google.com/maps/dir/?api=1&destination=Hungry+Kebab+Davy+Road+Cambridge+CB1+3QW" target="_blank" class="btn-primary">Get Directions</a>
+    </div>
+    <div class="map-embed">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2445.7633062205437!2d0.14203947780723675!3d52.19317497197733!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47d871def05aa111%3A0xa7bc2d99d88a857c!2sHungry%20Kebab!5e0!3m2!1sen!2suk!4v1779990332122!5m2!1sen!2suk" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section reveal">
+    <h2>Hungry? <em>We've got you.</em></h2>
+    <p>Order online or give us a call — ready in minutes.</p>
+    <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="btn-primary" style="font-size:1.05rem;padding:1rem 2.5rem;">Order Now</a>
+  </section>
+
+  <footer>
+    <a href="#top" class="footer-logo"><img src="logo.png" alt="Hungry Kebab" style="height:40px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+    <div class="footer-socials">
+      <a href="https://instagram.com/hungrykebab.cambridge" target="_blank"><i class="ti ti-brand-instagram"></i> Instagram</a>
+      <a href="https://facebook.com/Hungrykebab.Cambridge" target="_blank"><i class="ti ti-brand-facebook"></i> Facebook</a>
+    </div>
+    <p>© 2026 Hungry Kebab · Cambridge</p>
+  </footer>
+
+  <script>
+    // ── NAV TOGGLE ──
+    function toggleNav() {
+      var nav = document.getElementById('mobileNav');
+      nav.classList.toggle('open');
+    }
+    document.querySelectorAll('.mobile-nav a').forEach(function(link) {
+      link.addEventListener('click', function() {
+        document.getElementById('mobileNav').classList.remove('open');
+      });
+    });
+
+    // ── EMBER PARTICLES ──
+    var canvas = document.getElementById('particleCanvas');
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+
+    function resizeCanvas() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function Particle() {
+      this.x = Math.random() * canvas.width;
+      this.y = canvas.height + 10;
+      this.size = Math.random() * 3 + 1;
+      this.speedY = Math.random() * 1.5 + 0.5;
+      this.speedX = (Math.random() - 0.5) * 0.8;
+      this.opacity = Math.random() * 0.6 + 0.2;
+      this.life = 0;
+      this.maxLife = Math.random() * 120 + 80;
+    }
+
+    Particle.prototype.update = function() {
+      this.y -= this.speedY;
+      this.x += this.speedX;
+      this.life++;
+      this.opacity = 0.7 * (1 - this.life / this.maxLife);
+    };
+
+    Particle.prototype.draw = function() {
+      ctx.save();
+      ctx.globalAlpha = this.opacity;
+      ctx.fillStyle = Math.random() > 0.5 ? '#C9A84C' : '#E8843A';
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    };
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (Math.random() < 0.3) particles.push(new Particle());
+      particles = particles.filter(function(p) { return p.life < p.maxLife; });
+      particles.forEach(function(p) { p.update(); p.draw(); });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+
+    // ── SCROLL REVEAL ──
+    var reveals = document.querySelectorAll('.reveal');
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(function(el) { observer.observe(el); });
+
+    // ── DEAL SCROLL DRAG ──
+    var dealsScroll = document.getElementById('dealsScroll');
+    var isDragging = false;
+    var dragStartX = 0;
+    var dragScrollStart = 0;
+
+    dealsScroll.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragScrollStart = dealsScroll.scrollLeft;
+      dealsScroll.classList.add('dragging');
+    });
+
+    window.addEventListener('mouseup', function() {
+      isDragging = false;
+      dealsScroll.classList.remove('dragging');
+    });
+
+    window.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      dealsScroll.scrollLeft = dragScrollStart - (e.clientX - dragStartX);
+    });
+  </script>
+
+</body>
+</html>
