@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
   <title>Hungry Kebab · Cambridge</title>
   <link rel="icon" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -331,6 +332,7 @@
       border: 1px solid var(--black-border);
       transition: border-color 0.2s, transform 0.2s;
     }
+    .deal-card { cursor: pointer; }
     .deal-card:hover { border-color: var(--gold-dark); transform: translateY(-3px); }
 
     .deal-card-img {
@@ -486,19 +488,20 @@
       .nav-links { display: none; }
       .hamburger { display: block; }
       .hero { grid-template-columns: 1fr; padding: 2.5rem 1.5rem; min-height: auto; }
-      .hero-image-wrap { display: block; margin-top: 1.5rem; }
+      .hero-image-wrap { display: block !important; width: 100%; margin-top: 1.5rem; }
+      .hero-image-wrap img { width: 100%; border-radius: 12px; object-fit: cover; object-position: center top; }
       .highlights { gap: 1.2rem; padding: 1rem 1.5rem; }
       .section { padding: 3rem 1.5rem; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      .highlight-item { font-size: 0.78rem; }
       .location-strip { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
       footer { flex-direction: column; text-align: center; padding: 2rem 1.5rem; }
-      .float-order { display: block; }
+
     }
   </style>
 </head>
 <body>
 
-  <!-- FLOATING ORDER BTN -->
-  <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="float-order">🔥 Order Now</a>
 
   <nav>
     <a href="#top" class="nav-logo"><img src="logo.png" alt="Hungry Kebab logo" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
@@ -594,8 +597,8 @@
     </div>
 
     <div class="deals-scroll-wrapper">
-      <div class="deals-scroll" id="dealsScroll">
-        <div class="deal-card"><div class="deal-card-img">🥙</div><div class="deal-card-body"><h3>Meal 1</h3><p>Small Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
+      <div class="deals-scroll" id="dealsScroll" onclick="window.location.href='order.html'">
+        <a href="order.html" style="text-decoration:none;"><div class="deal-card"><div class="deal-card-img">🥙</div><div class="deal-card-body"><h3>Meal 1</h3><p>Small Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
         <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 2</h3><p>1/4 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
         <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 3</h3><p>1/2 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.00</span></div></div></div>
         <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 4</h3><p>Chicken Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
@@ -620,7 +623,7 @@
       <h2>Come find us</h2>
       <div class="info-row"><i class="ti ti-map-pin"></i><span>Davy Road, Cambridge CB1 3QW</span></div>
       <div class="info-row"><i class="ti ti-clock"></i><span>Open daily · 4:00PM – 12:00AM</span></div>
-      <div class="info-row"><i class="ti ti-phone"></i><span>+44 7862 056385</span></div>
+      <div class="info-row"><i class="ti ti-phone"></i><a href="tel:+447862056385" style="color:var(--gold);text-decoration:none;">+44 7862 056385</a></div>
       <br>
       <a href="https://www.google.com/maps/dir/?api=1&destination=Hungry+Kebab+Davy+Road+Cambridge+CB1+3QW" target="_blank" class="btn-primary">Get Directions</a>
     </div>

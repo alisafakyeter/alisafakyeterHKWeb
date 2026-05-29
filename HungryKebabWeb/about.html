@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
   <title>About Us · Hungry Kebab Cambridge</title>
   <link rel="icon" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -572,6 +573,7 @@
       transform: translateY(40px);
       transition: opacity 0.7s ease, transform 0.7s ease;
     }
+    @media (max-width: 768px) { .reveal { opacity: 1; transform: none; } }
     .reveal.visible { opacity: 1; transform: translateY(0); }
 
     /* ── RESPONSIVE ── */
@@ -580,7 +582,10 @@
       .hamburger { display: block; }
       .hero { padding: 4rem 1.5rem; min-height: auto; }
       .story { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 1.5rem; }
-      .story-img { display: block; margin-top: 1.5rem; }
+      .story-img { order: 2; }
+      .story-text { order: 1; }
+      .story-img { display: block !important; margin-top: 0; order: 2; }
+      .story-img img { width: 100%; border-radius: 12px; }
       .timeline::before { left: 20px; }
       .timeline-item { grid-template-columns: 40px 1fr; }
       .timeline-item:nth-child(odd) .timeline-content,
@@ -591,13 +596,11 @@
       .stats-section { padding: 3rem 1.5rem; }
       .video-section { padding: 3rem 1.5rem; }
       footer { flex-direction: column; text-align: center; }
-      .float-order { display: block; }
+
     }
   </style>
 </head>
 <body>
-
-  <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="float-order">🔥 Order Now</a>
 
   <nav>
     <a href="index.html" class="nav-logo"><img src="logo.png" alt="Hungry Kebab logo" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
