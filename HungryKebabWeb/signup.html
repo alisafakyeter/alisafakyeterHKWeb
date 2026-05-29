@@ -188,7 +188,7 @@
 
 <script>
   if (localStorage.getItem('hk_user')) window.location.href = 'account.html';
-  function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+  function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
 
   function handleSignup() {
     var first = document.getElementById('signupFirst').value.trim();

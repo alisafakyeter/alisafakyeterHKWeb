@@ -58,9 +58,9 @@
     .page-layout { display: grid; grid-template-columns: 1fr 380px; min-height: calc(100vh - 65px); align-items: start; }
 
     /* TABS */
-    .tabs-wrapper { background: rgba(13,13,13,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--black-border); position: sticky; top: 65px; z-index: 90; overflow-x: auto; scrollbar-width: none; }
+    .tabs-wrapper { background: rgba(13,13,13,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--black-border); position: sticky; top: 65px; z-index: 90; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
     .tabs-wrapper::-webkit-scrollbar { display: none; }
-    .tabs { display: flex; min-width: max-content; padding: 0 2rem; }
+    .tabs { display: flex; min-width: max-content; padding: 0 1rem; touch-action: pan-x; }
     .tab-btn { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text-muted); font-family: 'DM Sans', sans-serif; font-size: 16px; font-size: 0.85rem; font-weight: 500; padding: 0.9rem 1rem; cursor: pointer; white-space: nowrap; transition: color 0.2s, border-color 0.2s, text-shadow 0.3s; }
     .tab-btn:hover { color: var(--cream); }
     .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); text-shadow: 0 0 14px rgba(201,168,76,0.55); }
@@ -225,6 +225,8 @@
 
     @media (max-width:900px) {
       .page-layout { grid-template-columns: 1fr; }
+      /* Tabs become a horizontal scroll row but page itself doesnt scroll sideways */
+      .tabs-wrapper { position: relative; top: 0; }
       .basket-panel { position: fixed; right: 0; top: 0; bottom: 0; width: 320px; transform: translateX(100%); transition: transform 0.3s ease; z-index: 150; height: 100vh; }
       .basket-panel.open { transform: translateX(0); box-shadow: -8px 0 40px rgba(0,0,0,0.6); }
       .nav-links { display: none; }

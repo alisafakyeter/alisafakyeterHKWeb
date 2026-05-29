@@ -133,7 +133,7 @@
   // Redirect if already logged in
   if (localStorage.getItem('hk_user')) window.location.href = 'account.html';
 
-  function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+  function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
 
   function handleLogin() {
     var email = document.getElementById('loginEmail').value.trim();

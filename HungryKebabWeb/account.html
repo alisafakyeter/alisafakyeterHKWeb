@@ -253,7 +253,7 @@
   var user = JSON.parse(localStorage.getItem('hk_user') || 'null');
   if (!user) window.location.href = 'login.html';
 
-  function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+  function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
 
   // ── POPULATE ACCOUNT ──
   function populateAccount() {

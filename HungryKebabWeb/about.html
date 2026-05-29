@@ -580,7 +580,7 @@
       .hamburger { display: block; }
       .hero { padding: 4rem 1.5rem; min-height: auto; }
       .story { grid-template-columns: 1fr; gap: 2rem; padding: 3rem 1.5rem; }
-      .story-img { display: none; }
+      .story-img { display: block; margin-top: 1.5rem; }
       .timeline::before { left: 20px; }
       .timeline-item { grid-template-columns: 40px 1fr; }
       .timeline-item:nth-child(odd) .timeline-content,
@@ -750,7 +750,9 @@
   <script>
     // ── NAV ──
     function toggleNav() {
-      document.getElementById('mobileNav').classList.toggle('open');
+      var nav = document.getElementById('mobileNav');
+      nav.classList.toggle('open');
+      if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); }
     }
     document.querySelectorAll('.mobile-nav a').forEach(function(l) {
       l.addEventListener('click', function() {
