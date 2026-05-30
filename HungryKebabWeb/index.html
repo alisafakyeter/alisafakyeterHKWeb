@@ -29,7 +29,6 @@
       font-family: 'DM Sans', sans-serif; font-size: 16px;
       background: var(--black);
       color: var(--cream);
-      overflow-x: clip;
     }
 
     /* ── BUTTONS ── */
@@ -310,22 +309,27 @@
     .section-header a:hover { color: var(--gold-light); }
 
     /* ── DEALS SCROLL ── */
-    .deals-scroll-wrapper { width: 100%; }
+    .deals-scroll-wrapper { width: 100%; overflow-x: auto; }
 
     .deals-scroll {
       display: flex;
+      flex-wrap: nowrap;
+      flex-direction: row;
       gap: 1rem;
-      overflow-x: auto;
+      overflow-x: scroll;
       padding-bottom: 1rem;
       cursor: grab;
       user-select: none;
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
     .deals-scroll::-webkit-scrollbar { display: none; }
     .deals-scroll.dragging { cursor: grabbing; }
 
     .deal-card {
       flex: 0 0 240px;
+      min-width: 240px;
+      max-width: 240px;
       background: var(--black-card);
       border-radius: 10px;
       overflow: hidden;
@@ -491,12 +495,327 @@
       .hero-image-wrap { display: block !important; width: 100%; margin-top: 1.5rem; }
       .hero-image-wrap img { width: 100%; border-radius: 12px; object-fit: cover; object-position: center top; }
       .highlights { gap: 1.2rem; padding: 1rem 1.5rem; }
-      .section { padding: 3rem 1.5rem; }
-      .section-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
       .highlight-item { font-size: 0.78rem; }
+      .section { padding: 2rem 1.5rem; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+      /* Deals horizontal on mobile */
+      .deals-scroll { -webkit-overflow-scrolling: touch; }
+      .deal-card { flex: 0 0 180px; min-width: 180px; }
       .location-strip { grid-template-columns: 1fr; padding: 3rem 1.5rem; }
       footer { flex-direction: column; text-align: center; padding: 2rem 1.5rem; }
+    }
 
+
+    /* ── FEATURED ITEM SPOTLIGHT ── */
+    .spotlight {
+      position: relative;
+      background: var(--black-soft);
+      border-top: 1px solid var(--black-border);
+      border-bottom: 1px solid var(--black-border);
+      overflow: hidden;
+      padding: 5rem 2.5rem;
+    }
+
+    /* ambient glow layers */
+    .spotlight::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: -80px;
+      width: 480px; height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.09) 0%, transparent 65%);
+      pointer-events: none;
+      animation: spotGlow 5s ease-in-out infinite alternate;
+    }
+    .spotlight::after {
+      content: '';
+      position: absolute;
+      bottom: -100px; right: -60px;
+      width: 380px; height: 380px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 65%);
+      pointer-events: none;
+      animation: spotGlow 5s ease-in-out infinite alternate-reverse;
+    }
+    @keyframes spotGlow {
+      from { opacity: 0.6; transform: scale(1); }
+      to   { opacity: 1;   transform: scale(1.12); }
+    }
+
+    .spotlight-inner {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* ── LEFT: text side ── */
+    .spotlight-text { position: relative; }
+
+    .spotlight-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid rgba(201,168,76,0.35);
+      color: var(--gold);
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 0.35rem 0.85rem;
+      border-radius: 2px;
+      margin-bottom: 1.4rem;
+    }
+    .spotlight-badge-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      animation: spotBadgePulse 1.4s ease-in-out infinite;
+    }
+    @keyframes spotBadgePulse {
+      0%,100% { opacity:1; transform:scale(1); }
+      50%      { opacity:0.35; transform:scale(0.65); }
+    }
+
+    .spotlight-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      margin-bottom: 0.6rem;
+    }
+
+    .spotlight-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 3.8vw, 3rem);
+      color: var(--cream);
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+    .spotlight-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .spotlight-tagline {
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      color: var(--gold-dark);
+      margin-bottom: 1.2rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .spotlight-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      max-width: 400px;
+    }
+
+    /* icon feature row */
+    .spotlight-features {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 2.2rem;
+    }
+    .spot-feat {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .spot-feat i {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    /* animated CTA */
+    .spotlight-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.95rem 2rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .spotlight-cta::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      animation: ctaSheen 2.8s ease-in-out infinite;
+    }
+    @keyframes ctaSheen {
+      0%   { left: -80%; }
+      60%  { left: 120%; }
+      100% { left: 120%; }
+    }
+    .spotlight-cta:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+    }
+    .spotlight-cta i { font-size: 1.05rem; transition: transform 0.2s; }
+    .spotlight-cta:hover i { transform: translateX(3px); }
+
+    /* ── RIGHT: image side ── */
+    .spotlight-image-wrap {
+      position: relative;
+    }
+
+    /* outer ring glow */
+    .spotlight-image-ring {
+      position: absolute;
+      inset: -18px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, rgba(201,168,76,0.18), transparent 55%, rgba(201,168,76,0.08));
+      z-index: 0;
+      animation: ringPulse 3.5s ease-in-out infinite alternate;
+    }
+    @keyframes ringPulse {
+      from { opacity: 0.6; }
+      to   { opacity: 1; }
+    }
+
+    .spotlight-img {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      border-radius: 14px;
+      display: block;
+      transition: transform 0.5s ease, box-shadow 0.5s ease;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55), 0 0 40px rgba(201,168,76,0.1);
+    }
+    .spotlight-image-wrap:hover .spotlight-img {
+      transform: scale(1.025) translateY(-4px);
+      box-shadow: 0 28px 80px rgba(0,0,0,0.65), 0 0 60px rgba(201,168,76,0.18);
+    }
+
+    /* floating sparks canvas */
+    #sparkCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      border-radius: 14px;
+    }
+
+    /* price tag float */
+    .spotlight-price-tag {
+      position: absolute;
+      bottom: 1.4rem;
+      left: -1.5rem;
+      z-index: 4;
+      background: var(--black-soft);
+      border: 1px solid var(--gold-dark);
+      border-radius: 10px;
+      padding: 0.7rem 1.1rem;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+      animation: floatTag 3s ease-in-out infinite;
+    }
+    @keyframes floatTag {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+    .price-tag-label { font-size: 0.62rem; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.15rem; }
+    .price-tag-value { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--gold); line-height: 1; }
+    .price-tag-sub   { font-size: 0.68rem; color: #555; margin-top: 0.1rem; }
+
+    /* "New" badge float */
+    .spotlight-new-badge {
+      position: absolute;
+      top: -1rem;
+      right: -1rem;
+      z-index: 4;
+      width: 68px; height: 68px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--black);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 500;
+      box-shadow: 0 0 0 4px rgba(201,168,76,0.2), 0 4px 20px rgba(201,168,76,0.35);
+      animation: badgeSpin 8s linear infinite, floatBadge 2.5s ease-in-out infinite;
+    }
+    @keyframes floatBadge {
+      0%,100% { transform: translateY(0) rotate(0deg); }
+      50%      { transform: translateY(-5px) rotate(0deg); }
+    }
+    .spotlight-new-badge span:first-child  { font-size: 0.58rem; letter-spacing: 1px; text-transform: uppercase; }
+    .spotlight-new-badge span:last-child   { font-size: 1.1rem; font-family: 'Playfair Display', serif; line-height: 1; }
+
+    /* smoke drift layers */
+    .smoke-layer {
+      position: absolute;
+      bottom: 10%;
+      left: 15%;
+      width: 200px;
+      height: 200px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .smoke-layer::before, .smoke-layer::after {
+      content: '';
+      position: absolute;
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(201,168,76,0.04) 0%, transparent 70%);
+      animation: smokeDrift 4s ease-in-out infinite;
+    }
+    .smoke-layer::after {
+      left: 50px; top: 20px;
+      width: 60px; height: 60px;
+      animation-delay: 1.5s;
+      animation-duration: 5s;
+    }
+    @keyframes smokeDrift {
+      0%   { transform: translateY(0) scale(1);   opacity: 0.7; }
+      50%  { transform: translateY(-30px) scale(1.3); opacity: 0.3; }
+      100% { transform: translateY(-60px) scale(1.6); opacity: 0; }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .spotlight-inner {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        text-align: center;
+      }
+      .spotlight-text { order: 2; }
+      .spotlight-image-wrap { order: 1; max-width: 480px; margin: 0 auto; }
+      .spotlight-features { justify-content: center; }
+      .spotlight-desc { margin: 0 auto 2rem; }
+      .spotlight-badge { margin-bottom: 1rem; }
+      .spotlight-price-tag { left: 0.5rem; bottom: 0.5rem; }
+      .spotlight-new-badge { top: -0.5rem; right: -0.5rem; }
+    }
+    @media (max-width: 600px) {
+      .spotlight { padding: 3rem 1.5rem; }
+      .spotlight-inner { gap: 2rem; }
+      .spotlight-title { font-size: 1.8rem; }
     }
   </style>
 </head>
@@ -535,7 +854,7 @@
       <h1>Authentic<br><em>Turkish Kebabs</em><br>Done Right.</h1>
       <p>Fresh ingredients, generous portions, and flavours straight from the grill. Open late so you're never left hungry.</p>
       <div class="hero-btns">
-        <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="btn-primary">Order Now</a>
+        <a href="order.html" class="btn-primary">Order Now</a>
         <a href="order.html" class="btn-outline">View Menu</a>
       </div>
     </div>
@@ -581,7 +900,66 @@
       <span class="ticker-dot">·</span>
       <div class="ticker-item"><span class="ticker-stars">★★★★★</span><span class="ticker-text">"Always amazing food! The chips were the best we've had from a van. 10/10."</span><span class="ticker-author">— Seren E., TripAdvisor</span></div>
     </div>
-  </div>
+
+
+  <!-- FEATURED ITEM SPOTLIGHT -->
+  <section class="spotlight reveal" id="featured">
+    <!-- ambient smoke -->
+    <div class="smoke-layer"></div>
+
+    <div class="spotlight-inner">
+
+      <!-- LEFT: text -->
+      <div class="spotlight-text">
+        <div class="spotlight-badge">
+          <span class="spotlight-badge-dot"></span>
+          Just landed
+        </div>
+        <p class="spotlight-eyebrow">Featured item</p>
+        <h2 class="spotlight-title">Chicken<br><em>Döner</em></h2>
+        <p class="spotlight-tagline">Come hungry. Leave happy.</p>
+        <p class="spotlight-desc">
+          Real chicken döner, slow-cooked on the spit and carved fresh to order. Packed into warm pitta with crisp salad, grilled peppers and our legendary house sauce. This is the one everyone keeps coming back for.
+        </p>
+        <div class="spotlight-features">
+          <span class="spot-feat"><i class="ti ti-flame"></i> Fresh off the grill</span>
+          <span class="spot-feat"><i class="ti ti-leaf"></i> Real ingredients</span>
+          <span class="spot-feat"><i class="ti ti-droplet"></i> Special sauces</span>
+          <span class="spot-feat"><i class="ti ti-heart"></i> Made with love</span>
+        </div>
+        <a href="order.html" class="spotlight-cta">
+          Order Now <i class="ti ti-arrow-right"></i>
+        </a>
+      </div>
+
+      <!-- RIGHT: image -->
+      <div class="spotlight-image-wrap">
+        <div class="spotlight-image-ring"></div>
+        <img
+          src="chicken-doner-promo.png"
+          alt="Hungry Kebab Chicken Döner"
+          class="spotlight-img"
+          onerror="this.style.borderRadius='14px';this.style.minHeight='360px';this.style.background='#1a1a1a';"
+        />
+        <canvas id="sparkCanvas"></canvas>
+
+        <!-- floating price tag -->
+        <div class="spotlight-price-tag">
+          <div class="price-tag-label">From</div>
+          <div class="price-tag-value">£9.00</div>
+          <div class="price-tag-sub">S · L · XL sizes</div>
+        </div>
+
+        <!-- NEW badge -->
+        <div class="spotlight-new-badge">
+          <span>Just</span>
+          <span>New</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
 
   <!-- MEAL DEALS -->
   <section class="section reveal">
@@ -598,7 +976,7 @@
 
     <div class="deals-scroll-wrapper">
       <div class="deals-scroll" id="dealsScroll" onclick="window.location.href='order.html'">
-        <a href="order.html" style="text-decoration:none;"><div class="deal-card"><div class="deal-card-img">🥙</div><div class="deal-card-body"><h3>Meal 1</h3><p>Small Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
+        <div class="deal-card"><div class="deal-card-img">🥙</div><div class="deal-card-body"><h3>Meal 1</h3><p>Small Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
         <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 2</h3><p>1/4 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
         <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 3</h3><p>1/2 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.00</span></div></div></div>
         <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 4</h3><p>Chicken Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
@@ -636,7 +1014,7 @@
   <section class="cta-section reveal">
     <h2>Hungry? <em>We've got you.</em></h2>
     <p>Order online or give us a call — ready in minutes.</p>
-    <a href="https://order.netroneats.com/home?companyId=18" target="_blank" class="btn-primary" style="font-size:1.05rem;padding:1rem 2.5rem;">Order Now</a>
+    <a href="order.html" class="btn-primary" style="font-size:1.05rem;padding:1rem 2.5rem;">Order Now</a>
   </section>
 
   <footer>
@@ -746,6 +1124,61 @@
       if (!isDragging) return;
       dealsScroll.scrollLeft = dragScrollStart - (e.clientX - dragStartX);
     });
+
+
+    // ── SPARK PARTICLES on featured image ──
+    (function() {
+      var sc = document.getElementById('sparkCanvas');
+      if (!sc) return;
+      var sx = sc.getContext('2d');
+      var sparks = [];
+
+      function resizeSC() {
+        sc.width  = sc.offsetWidth  || sc.parentElement.offsetWidth;
+        sc.height = sc.offsetHeight || sc.parentElement.offsetHeight;
+      }
+      resizeSC();
+      window.addEventListener('resize', resizeSC);
+
+      function Spark() {
+        this.x = Math.random() * sc.width;
+        this.y = sc.height * (0.4 + Math.random() * 0.5);
+        this.vx = (Math.random() - 0.5) * 1.2;
+        this.vy = -(Math.random() * 1.8 + 0.6);
+        this.life = 0;
+        this.maxLife = 60 + Math.random() * 60;
+        this.r = Math.random() * 2 + 0.5;
+        this.gold = Math.random() > 0.4;
+      }
+      Spark.prototype.update = function() {
+        this.x  += this.vx;
+        this.y  += this.vy;
+        this.vy += 0.02; // slight gravity
+        this.life++;
+      };
+      Spark.prototype.draw = function() {
+        var alpha = 0.8 * (1 - this.life / this.maxLife);
+        sx.save();
+        sx.globalAlpha = alpha;
+        sx.fillStyle = this.gold ? '#C9A84C' : '#E8843A';
+        sx.shadowColor = this.gold ? '#C9A84C' : '#E8843A';
+        sx.shadowBlur = 6;
+        sx.beginPath();
+        sx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+        sx.fill();
+        sx.restore();
+      };
+
+      function animateSparks() {
+        sx.clearRect(0, 0, sc.width, sc.height);
+        if (Math.random() < 0.25) sparks.push(new Spark());
+        sparks = sparks.filter(function(s) { return s.life < s.maxLife; });
+        sparks.forEach(function(s) { s.update(); s.draw(); });
+        requestAnimationFrame(animateSparks);
+      }
+      animateSparks();
+    })();
+
   </script>
 
 </body>
