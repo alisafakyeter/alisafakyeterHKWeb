@@ -369,6 +369,30 @@
     }
     .see-more a:hover { border-color: var(--gold); color: var(--gold); }
 
+
+    .deal-card-add {
+      position: absolute;
+      bottom: 0.75rem;
+      right: 0.75rem;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      font-size: 1.2rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      z-index: 2;
+      line-height: 1;
+    }
+    .deal-card-add:hover { background: var(--gold-light); transform: scale(1.12); }
+    .deal-card-add:active { transform: scale(0.9); }
+    .deal-card { position: relative; }
+
     /* ── LOCATION ── */
     .location-strip {
       background: var(--black-soft);
@@ -966,7 +990,7 @@
     <p class="section-label">Meal Deals</p>
     <div class="section-header">
       <h2 class="section-title">Best deals in town</h2>
-      <a href="https://order.netroneats.com/home?companyId=18" target="_blank">Order now →</a>
+      <a href="order.html#deals">Order now →</a>
     </div>
 
     <div style="display:flex;gap:0.6rem;margin-bottom:1rem;">
@@ -975,23 +999,13 @@
     </div>
 
     <div class="deals-scroll-wrapper">
-      <div class="deals-scroll" id="dealsScroll" onclick="window.location.href='order.html'">
-        <div class="deal-card"><div class="deal-card-img">🥙</div><div class="deal-card-body"><h3>Meal 1</h3><p>Small Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 2</h3><p>1/4 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 3</h3><p>1/2 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.00</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 4</h3><p>Chicken Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 5</h3><p>Small Chicken Shish, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.00</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 6</h3><p>Small Chicken Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.00</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 7</h3><p>5 Wings, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.00</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 8</h3><p>Lahmacun Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£11.00</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 9</h3><p>Small Chicken Doner Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.50</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 10</h3><p>Small Doner Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div></div>
-        <div class="deal-card"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 11</h3><p>Chicken Roll or Doner Roll, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div></div>
+      <div class="deals-scroll" id="dealsScroll">
+        <div class="deal-card" onclick="goToDeals(event, 'de1')"><div class="deal-card-img">🥙</div><div class="deal-card-body"><h3>Meal 1</h3><p>Small Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de1', 'Meal 1', 12.5)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de2')"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 2</h3><p>1/4 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de2', 'Meal 2', 10.5)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de3')"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 3</h3><p>1/2 Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.00</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de3', 'Meal 3', 12.0)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de4')"><div class="deal-card-img">🍔</div><div class="deal-card-body"><h3>Meal 4</h3><p>Chicken Burger, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de4', 'Meal 4', 10.5)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de5')"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 5</h3><p>Small Chicken Shish, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.00</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de5', 'Meal 5', 13.0)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de6')"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 6</h3><p>Small Chicken Doner, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.00</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de6', 'Meal 6', 13.0)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de7')"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 7</h3><p>5 Wings, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.00</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de7', 'Meal 7', 10.0)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de8')"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 8</h3><p>Lahmacun Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£11.00</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de8', 'Meal 8', 11.0)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de9')"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 9</h3><p>Small Chicken Doner Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£13.50</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de9', 'Meal 9', 13.5)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de10')"><div class="deal-card-img">🌯</div><div class="deal-card-body"><h3>Meal 10</h3><p>Small Doner Wrap, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£12.50</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de10', 'Meal 10', 12.5)">+</button></div><div class="deal-card" onclick="goToDeals(event, 'de11')"><div class="deal-card-img">🍗</div><div class="deal-card-body"><h3>Meal 11</h3><p>Chicken Roll or Doner Roll, Chips and Drink</p><div class="deal-pricing"><span class="deal-price">£10.50</span></div></div><button class="deal-card-add" onclick="quickAddDeal(event, 'de11', 'Meal 11', 10.5)">+</button></div>
       </div>
     </div>
 
     <div class="see-more">
-      <a href="https://order.netroneats.com/home?companyId=18" target="_blank">See all deals & order online →</a>
+      <a href="order.html#deals">See all deals & order online →</a>
     </div>
   </section>
 
@@ -1178,6 +1192,23 @@
       }
       animateSparks();
     })();
+
+
+    // ── DEAL CARD: navigate to deals tab ──
+    function goToDeals(e, itemId) {
+      // Don't navigate if the + button was clicked
+      if (e.target.classList.contains('deal-card-add')) return;
+      window.location.href = 'order.html#deals';
+    }
+
+    // ── DEAL CARD: quick-add to basket then go to order page ──
+    function quickAddDeal(e, id, name, price) {
+      e.stopPropagation(); // don't trigger goToDeals
+      // Save to localStorage so order.html can pick it up
+      var pending = { id: id, name: name, price: price };
+      localStorage.setItem('hk_pending_deal', JSON.stringify(pending));
+      window.location.href = 'order.html#deals';
+    }
 
   </script>
 

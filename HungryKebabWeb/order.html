@@ -1050,6 +1050,31 @@ document.querySelectorAll('.mobile-nav a').forEach(function(l) {
 
 renderMenus();
 renderBasket();
+
+// ── HASH + PENDING DEAL on page load ──
+(function() {
+  // 1. If URL has #deals, switch to the deals tab
+  if (window.location.hash === '#deals') {
+    var dealsBtn = document.querySelector('.tab-btn[onclick*="deals"]');
+    if (dealsBtn) showTab('deals', dealsBtn);
+  }
+
+  // 2. If a pending deal was quick-added from the homepage, add it to the basket
+  var pending = localStorage.getItem('hk_pending_deal');
+  if (pending) {
+    localStorage.removeItem('hk_pending_deal');
+    try {
+      var pd = JSON.parse(pending);
+      // Find the item in menuData.deals.items
+      var dealItem = menuData.deals.items.find(function(i) { return i.id === pd.id; });
+      if (dealItem) {
+        addToBasket(dealItem, 'deals', null, []);
+        glowBasket();
+      }
+    } catch(e) {}
+  }
+})();
+
 </script>
 </body>
 </html>
