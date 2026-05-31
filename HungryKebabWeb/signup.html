@@ -187,11 +187,19 @@
   <p>© 2026 Hungry Kebab · Cambridge</p>
 </footer>
 
-<script>
-  if (localStorage.getItem('hk_user')) window.location.href = 'account.html';
-  function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
 
-  function handleSignup() {
+  <script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient(
+    'https://czjpfrdyjdrpupuwqgcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
+  )
+
+  if (sessionStorage.getItem('hk_user')) window.location.href = 'account.html';
+  function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
+  window.toggleNav = toggleNav;
+
+  window.handleSignup = async function() {
     var first = document.getElementById('signupFirst').value.trim();
     var last = document.getElementById('signupLast').value.trim();
     var email = document.getElementById('signupEmail').value.trim();
@@ -199,29 +207,32 @@
     var password = document.getElementById('signupPassword').value;
     var confirm = document.getElementById('signupConfirm').value;
     var errEl = document.getElementById('signupError');
+    var btn = document.querySelector('.submit-btn');
 
+    errEl.classList.remove('show');
     if (!first || !email || !phone || !password) { errEl.textContent='Please fill in all required fields.'; errEl.classList.add('show'); return; }
     if (password.length < 6) { errEl.textContent='Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
     if (password !== confirm) { errEl.textContent='Passwords do not match.'; errEl.classList.add('show'); return; }
 
-    var users = JSON.parse(localStorage.getItem('hk_users') || '[]');
-    if (users.find(function(u) { return u.email === email; })) { errEl.textContent='An account with this email already exists.'; errEl.classList.add('show'); return; }
+    btn.textContent = 'Creating account...';
+    btn.disabled = true;
 
-    var user = {
-      id: Date.now().toString(),
-      firstName: first, lastName: last, email: email, phone: phone, password: password,
-      orderType: document.getElementById('signupOrderType').value,
-      paymentMethod: document.getElementById('signupPayment').value,
-      addr1: document.getElementById('signupAddr1').value,
-      addr2: document.getElementById('signupAddr2').value,
-      city: document.getElementById('signupCity').value,
-      postcode: document.getElementById('signupPostcode').value,
-      joined: new Date().toLocaleDateString('en-GB'),
-    };
+    // Create auth account in Supabase (disable email confirmation)
+    const { data, error } = await supabase.auth.signUp({
+      email, password,
+      options: { data: { name: first + ' ' + last, phone } }
+    })
+    if (error) { errEl.textContent = error.message; errEl.classList.add('show'); btn.textContent = 'Create Account'; btn.disabled = false; return; }
 
-    users.push(user);
-    localStorage.setItem('hk_users', JSON.stringify(users));
-    localStorage.setItem('hk_user', JSON.stringify(user));
+    // Save extra profile info to users table
+    const { error: insertError } = await supabase.from('users').insert({
+      id: data.user.id,
+      name: first + ' ' + last,
+      phone: phone
+    })
+
+    // Save to localStorage so rest of site works
+    sessionStorage.setItem('hk_user', JSON.stringify({ id: data.user.id, firstName: first, lastName: last, email, phone }));
     window.location.href = 'account.html';
   }
 
@@ -241,10 +252,7 @@
       ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
       ctx.fillStyle='rgba(201,168,76,'+s.opacity+')'; ctx.fill();
     });
-    for(var i=0;i<stars.length;i++) for(var j=i+1;j<stars.length;j++) {
-      var dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<120){ctx.beginPath();ctx.moveTo(stars[i].x,stars[i].y);ctx.lineTo(stars[j].x,stars[j].y);ctx.strokeStyle='rgba(201,168,76,'+(0.06*(1-dist/120))+')';ctx.lineWidth=0.5;ctx.stroke();}
-    }
+    for (var i=0;i<stars.length;i++) { for (var j=i+1;j<stars.length;j++) { var dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,dist=Math.sqrt(dx*dx+dy*dy); if(dist<120){ctx.beginPath();ctx.moveTo(stars[i].x,stars[i].y);ctx.lineTo(stars[j].x,stars[j].y);ctx.strokeStyle='rgba(201,168,76,'+(0.06*(1-dist/120))+')';ctx.lineWidth=0.5;ctx.stroke();}}}
     requestAnimationFrame(draw);
   }
   draw();

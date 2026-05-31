@@ -132,7 +132,13 @@
 
 <script>
   // Redirect if already logged in
-  if (localStorage.getItem('hk_user')) window.location.href = 'account.html';
+  if (sessionStorage.getItem('hk_user')) window.location.href = 'account.html';
+
+  // Show message if redirected from checkout
+  var params = new URLSearchParams(window.location.search);
+  if (params.get('next') === 'order.html') {
+    document.querySelector('.auth-sub').textContent = 'You need an account to place an order. Login or create one below.';
+  }
 
   function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
 
@@ -149,8 +155,11 @@
     if (!user) { errEl.classList.add('show'); return; }
 
     errEl.classList.remove('show');
-    localStorage.setItem('hk_user', JSON.stringify(user));
-    window.location.href = 'account.html';
+    sessionStorage.setItem('hk_user', JSON.stringify(user));
+    // Redirect back to order page if they came from checkout
+    var params = new URLSearchParams(window.location.search);
+    var next = params.get('next') || 'account.html';
+    window.location.href = next;
   }
 
   // Constellation canvas

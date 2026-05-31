@@ -251,7 +251,7 @@
 
 <script>
   // Redirect if not logged in
-  var user = JSON.parse(localStorage.getItem('hk_user') || 'null');
+  var user = JSON.parse(sessionStorage.getItem('hk_user') || 'null');
   if (!user) window.location.href = 'login.html';
 
   function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
@@ -279,7 +279,8 @@
   }
 
   function renderOrders() {
-    var orders = JSON.parse(localStorage.getItem('hk_orders') || '[]');
+    var orderKey = 'hk_orders_' + (user.id || 'guest');
+    var orders = JSON.parse(localStorage.getItem(orderKey) || '[]');
     var el = document.getElementById('ordersList');
     if (orders.length === 0) {
       el.innerHTML = '<div class="no-orders"><i class="ti ti-receipt-off"></i><p>No orders yet.<br><a href="order.html" style="color:var(--gold);">Place your first order →</a></p></div>';
@@ -308,10 +309,13 @@
   }
 
   function reorder(idx) {
-    var orders = JSON.parse(localStorage.getItem('hk_orders') || '[]');
+    var orderKey = 'hk_orders_' + (user.id || 'guest');
+    var orders = JSON.parse(localStorage.getItem(orderKey) || '[]');
     var order = orders[idx];
-    if (!order) return;
-    // Save basket to localStorage so order page can pick it up
+    if (!order || !order.items || !order.items.length) {
+      showToast('Could not find items for this order.');
+      return;
+    }
     localStorage.setItem('hk_reorder', JSON.stringify(order.items));
     showToast('Items added! Taking you to your basket...');
     setTimeout(function() { window.location.href = 'order.html'; }, 1200);
@@ -320,10 +324,7 @@
   // ── SAVE FUNCTIONS ──
   function updateUser(changes) {
     Object.assign(user, changes);
-    localStorage.setItem('hk_user', JSON.stringify(user));
-    var users = JSON.parse(localStorage.getItem('hk_users') || '[]');
-    var idx = users.findIndex(function(u) { return u.id === user.id; });
-    if (idx > -1) { users[idx] = user; localStorage.setItem('hk_users', JSON.stringify(users)); }
+    sessionStorage.setItem('hk_user', JSON.stringify(user));
   }
 
   function saveDetails() {
@@ -362,7 +363,7 @@
   }
 
   function signOut() {
-    localStorage.removeItem('hk_user');
+    sessionStorage.removeItem('hk_user');
     window.location.href = 'login.html';
   }
 

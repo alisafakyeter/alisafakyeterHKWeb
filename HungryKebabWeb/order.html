@@ -444,6 +444,11 @@
       </div>
       <div class="checkout-form">
         <div class="order-summary-mini" id="orderSummaryMini"></div>
+        <p class="form-section-title">Collection or delivery?</p>
+        <div class="order-type" style="margin:0 0 1rem;">
+          <button class="order-type-btn active" id="checkoutCollection" onclick="setOrderType('collection',this)">🏪 Collection</button>
+          <button class="order-type-btn" id="checkoutDelivery" onclick="setOrderType('delivery',this)">🛵 Delivery (+£2.50)</button>
+        </div>
         <p class="form-section-title">Your details</p>
         <div class="form-row">
           <div class="form-group"><label>First name</label><input type="text" id="firstName" placeholder="Ali" /></div>
@@ -495,7 +500,13 @@
   <p>© 2026 Hungry Kebab · Cambridge</p>
 </footer>
 
-<script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+const supabase = createClient(
+  'https://czjpfrdyjdrpupuwqgcx.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
+)
+
 // ── FULL MENU DATA (from official 2026 menu) ──
 var menuData = {
   kebabs: {
@@ -950,10 +961,25 @@ function renderBasket() {
 
 function setOrderType(type, btn) {
   orderType = type;
+  // Sync ALL order-type-btn buttons (basket panel + checkout modal)
   document.querySelectorAll('.order-type-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
+  document.querySelectorAll('.order-type-btn').forEach(function(b) {
+    if ((type === 'collection' && b.textContent.toLowerCase().includes('collection')) ||
+        (type === 'delivery' && b.textContent.toLowerCase().includes('delivery'))) {
+      b.classList.add('active');
+    }
+  });
   document.getElementById('deliveryFields').style.display = type === 'delivery' ? 'block' : 'none';
+  // Auto-fill address if delivery and user has saved address
+  if (type === 'delivery') {
+    var p = JSON.parse(localStorage.getItem('hk_profile') || '{}');
+    if (p.addr1) document.getElementById('addr1').value = p.addr1;
+    if (p.addr2) document.getElementById('addr2').value = p.addr2;
+    if (p.city) document.getElementById('city').value = p.city;
+    if (p.postcode) document.getElementById('postcode').value = p.postcode;
+  }
   renderBasket();
+  renderOrderSummary();
 }
 
 function toggleBasket() {
@@ -971,18 +997,40 @@ function showTab(name, btn) {
 
 // ── CHECKOUT ──
 function openCheckout() {
+  // Require login before checkout
+  var u = JSON.parse(sessionStorage.getItem('hk_user') || '{}');
+  if (!u.id) {
+    // Save basket so it can be restored after login
+    sessionStorage.setItem('hk_checkout_pending', 'true');
+    window.location.href = 'login.html?next=order.html';
+    return;
+  }
+
   document.getElementById('checkoutOverlay').classList.add('open');
   renderOrderSummary();
+
   var p = JSON.parse(localStorage.getItem('hk_profile') || '{}');
-  if (p.firstName) document.getElementById('firstName').value = p.firstName;
-  if (p.lastName) document.getElementById('lastName').value = p.lastName;
-  if (p.phone) document.getElementById('phone').value = p.phone;
-  if (p.email) document.getElementById('email').value = p.email;
-  if (p.addr1) document.getElementById('addr1').value = p.addr1;
-  if (p.addr2) document.getElementById('addr2').value = p.addr2;
-  if (p.city) document.getElementById('city').value = p.city;
-  if (p.postcode) document.getElementById('postcode').value = p.postcode;
+
+  document.getElementById('firstName').value = u.firstName || p.firstName || '';
+  document.getElementById('lastName').value = u.lastName || p.lastName || '';
+  document.getElementById('phone').value = u.phone || p.phone || '';
+  document.getElementById('email').value = u.email || p.email || '';
+
+  var isDelivery = orderType === 'delivery';
+  document.getElementById('deliveryFields').style.display = isDelivery ? 'block' : 'none';
+  document.getElementById('addr1').value = p.addr1 || '';
+  document.getElementById('addr2').value = p.addr2 || '';
+  document.getElementById('city').value = p.city || '';
+  document.getElementById('postcode').value = p.postcode || '';
   if (p.paymentMethod) document.getElementById('paymentMethod').value = p.paymentMethod;
+
+  document.querySelectorAll('.order-type-btn').forEach(function(b) {
+    b.classList.remove('active');
+    if ((orderType === 'collection' && b.textContent.toLowerCase().includes('collection')) ||
+        (orderType === 'delivery' && b.textContent.toLowerCase().includes('delivery'))) {
+      b.classList.add('active');
+    }
+  });
 }
 
 function closeCheckout() {
@@ -1006,12 +1054,21 @@ function renderOrderSummary() {
     '<div class="summary-total"><span>Total</span><span>£' + (subtotal+delivery).toFixed(2) + '</span></div>';
 }
 
-function placeOrder() {
+async function placeOrder() {
   var fn = document.getElementById('firstName').value.trim();
   var phone = document.getElementById('phone').value.trim();
   var email = document.getElementById('email').value.trim();
   var payment = document.getElementById('paymentMethod').value;
+  var addr1 = document.getElementById('addr1').value.trim();
+  var city = document.getElementById('city').value.trim();
+  var postcode = document.getElementById('postcode').value.trim();
+
   if (!fn || !phone || !email || !payment) { alert('Please fill in your name, phone, email and payment method.'); return; }
+  if (orderType === 'delivery' && (!addr1 || !city || !postcode)) {
+    alert('Please enter your full delivery address (street, city and postcode) before placing your order.');
+    document.getElementById('addr1').focus();
+    return;
+  }
 
   var profile = {
     firstName: fn, lastName: document.getElementById('lastName').value,
@@ -1022,25 +1079,57 @@ function placeOrder() {
   localStorage.setItem('hk_profile', JSON.stringify(profile));
 
   var subtotal = basket.reduce(function(a,b) { return a+(b.unitPrice*b.qty); }, 0);
+  var total = (subtotal+(orderType==='delivery'?2.50:0)).toFixed(2);
+
+  // Save order to Supabase
+  var user = JSON.parse(sessionStorage.getItem('hk_user') || '{}');
+  var orderId = 'HK'+Date.now().toString().slice(-6);
+
+  const { data: orderData, error: orderError } = await supabase.from('orders').insert({
+    user_id: user.id || null,
+    type: orderType,
+    status: 'Confirmed',
+    total: parseFloat(total),
+    stripe_payment_id: payment === 'cash' ? 'cash' : null
+  }).select().single();
+
+  if (!orderError && orderData) {
+    // Save each item
+    var itemRows = basket.map(function(b) {
+      return {
+        order_id: orderData.id,
+        item_name: b.name,
+        size: b.size || '',
+        quantity: b.qty,
+        unit_price: b.unitPrice
+      };
+    });
+    await supabase.from('order_items').insert(itemRows);
+    orderId = 'HK' + String(orderData.id).slice(-6);
+  }
+
+  // Save to localStorage per user
   var order = {
-    id: 'HK'+Date.now().toString().slice(-6),
+    id: orderId,
     date: new Date().toLocaleDateString('en-GB'),
     time: new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),
-    items: basket.slice(), total: (subtotal+(orderType==='delivery'?2.50:0)).toFixed(2),
+    items: basket.slice(), total: total,
     type: orderType, status:'Confirmed'
   };
-  var history = JSON.parse(localStorage.getItem('hk_orders') || '[]');
+  var orderKey = 'hk_orders_' + (user.id || 'guest');
+  var history = JSON.parse(localStorage.getItem(orderKey) || '[]');
   history.unshift(order);
-  localStorage.setItem('hk_orders', JSON.stringify(history));
+  localStorage.setItem(orderKey, JSON.stringify(history));
 
   document.getElementById('checkoutFormWrap').style.display = 'none';
   document.getElementById('successScreen').classList.add('show');
   document.getElementById('confirmPhone').textContent = phone;
-  document.getElementById('orderNumber').textContent = 'Order #' + order.id;
+  document.getElementById('orderNumber').textContent = 'Order #' + orderId;
 
   basket = [];
   renderBasket();
 }
+window.placeOrder = placeOrder;
 
 // ── NAV ──
 function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
@@ -1048,10 +1137,46 @@ document.querySelectorAll('.mobile-nav a').forEach(function(l) {
   l.addEventListener('click', function() { document.getElementById('mobileNav').classList.remove('open'); });
 });
 
+// Expose all functions to global scope for onclick handlers
+window.toggleNav = toggleNav;
+window.showTab = showTab;
+window.openOptions = openOptions;
+window.closeOptions = closeOptions;
+window.selectSize = selectSize;
+window.toggleExtra = toggleExtra;
+window.confirmAddItem = confirmAddItem;
+window.changeQty = changeQty;
+window.toggleBasket = toggleBasket;
+window.openCheckout = openCheckout;
+window.closeCheckout = closeCheckout;
+window.setOrderType = setOrderType;
+window.renderMenus = renderMenus;
+
 renderMenus();
 renderBasket();
 
-// ── HASH + PENDING DEAL on page load ──
+// ── PICK UP REORDER ──
+(function() {
+  var reorderItems = JSON.parse(localStorage.getItem('hk_reorder') || 'null');
+  if (reorderItems && reorderItems.length) {
+    reorderItems.forEach(function(item) {
+      // Find matching item in basket or just add directly
+      var existing = basket.find(function(b) { return b.key === item.key; });
+      if (existing) {
+        existing.qty += item.qty;
+      } else {
+        basket.push(Object.assign({}, item));
+      }
+    });
+    localStorage.removeItem('hk_reorder');
+    renderBasket();
+    // Scroll to basket
+    setTimeout(function() {
+      var bp = document.querySelector('.basket-panel');
+      if (bp) bp.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+  }
+})();
 (function() {
   // 1. If URL has #deals, switch to the deals tab
   if (window.location.hash === '#deals') {
