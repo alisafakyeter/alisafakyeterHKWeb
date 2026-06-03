@@ -458,12 +458,17 @@
         <div class="form-group"><label>Email</label><input type="email" id="email" placeholder="you@email.com" /></div>
         <div id="deliveryFields" style="display:none;">
           <p class="form-section-title">Delivery address</p>
+          <div class="form-group">
+            <label>Postcode</label>
+            <div style="display:flex;gap:0.5rem;align-items:center;">
+              <input type="text" id="postcode" placeholder="CB1 1AA" style="flex:1;background:var(--black-card);border:1px solid var(--black-border);border-radius:6px;padding:0.75rem 1rem;color:var(--cream);font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;text-transform:uppercase;" oninput="this.value=this.value.toUpperCase()" />
+              <button type="button" onclick="lookupPostcode()" style="background:var(--gold);color:var(--black);border:none;border-radius:6px;padding:0.75rem 1rem;font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;white-space:nowrap;">Find Address</button>
+            </div>
+            <p id="postcodeStatus" style="font-size:0.78rem;margin-top:0.4rem;display:none;"></p>
+          </div>
           <div class="form-group"><label>Address line 1</label><input type="text" id="addr1" placeholder="123 High Street" /></div>
           <div class="form-group"><label>Address line 2</label><input type="text" id="addr2" placeholder="Flat 2 (optional)" /></div>
-          <div class="form-row">
-            <div class="form-group"><label>City</label><input type="text" id="city" placeholder="Cambridge" /></div>
-            <div class="form-group"><label>Postcode</label><input type="text" id="postcode" placeholder="CB1 1AA" /></div>
-          </div>
+          <div class="form-group"><label>City / Town</label><input type="text" id="city" placeholder="Cambridge" /></div>
         </div>
         <p class="form-section-title">Payment</p>
         <div class="form-group">
@@ -1060,6 +1065,67 @@ function renderOrderSummary() {
     (orderType === 'delivery' ? '<div class="summary-item"><span>Delivery</span><span>£2.50</span></div>' : '') +
     '<div class="summary-total"><span>Total</span><span>£' + (subtotal+delivery).toFixed(2) + '</span></div>';
 }
+
+
+async function lookupPostcode() {
+  var postcode = document.getElementById('postcode').value.trim().replace(/\s/g, '');
+  var statusEl = document.getElementById('postcodeStatus');
+  if (!postcode) { statusEl.textContent = 'Please enter a postcode first.'; statusEl.style.color = '#e74c3c'; statusEl.style.display = 'block'; return; }
+
+  statusEl.textContent = 'Looking up postcode...';
+  statusEl.style.color = 'var(--text-muted)';
+  statusEl.style.display = 'block';
+
+  try {
+    var res = await fetch('https://api.postcodes.io/postcodes/' + postcode);
+    var data = await res.json();
+    if (data.status === 200) {
+      var result = data.result;
+      // Fill in city from admin_district or parish
+      var city = result.admin_district || result.parish || result.region || '';
+      document.getElementById('city').value = city;
+      statusEl.textContent = '✓ Valid postcode — ' + result.admin_district + ', ' + result.region;
+      statusEl.style.color = '#27ae60';
+    } else {
+      statusEl.textContent = '✗ Postcode not found. Please check and try again.';
+      statusEl.style.color = '#e74c3c';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Could not look up postcode. Please enter your address manually.';
+    statusEl.style.color = '#e74c3c';
+  }
+}
+window.lookupPostcode = lookupPostcode;
+
+
+async function lookupPostcode() {
+  var postcode = document.getElementById('postcode').value.trim().replace(/\s/g, '');
+  var statusEl = document.getElementById('postcodeStatus');
+  if (!postcode) { statusEl.textContent = 'Please enter a postcode first.'; statusEl.style.color = '#e74c3c'; statusEl.style.display = 'block'; return; }
+
+  statusEl.textContent = 'Looking up postcode...';
+  statusEl.style.color = 'var(--text-muted)';
+  statusEl.style.display = 'block';
+
+  try {
+    var res = await fetch('https://api.postcodes.io/postcodes/' + postcode);
+    var data = await res.json();
+    if (data.status === 200) {
+      var result = data.result;
+      var city = result.admin_district || result.parish || result.region || '';
+      document.getElementById('city').value = city;
+      statusEl.textContent = '✓ Valid postcode — ' + result.admin_district + ', ' + result.region;
+      statusEl.style.color = '#27ae60';
+    } else {
+      statusEl.textContent = '✗ Postcode not found. Please check and try again.';
+      statusEl.style.color = '#e74c3c';
+    }
+  } catch(e) {
+    statusEl.textContent = 'Could not look up postcode. Please enter your address manually.';
+    statusEl.style.color = '#e74c3c';
+  }
+}
+window.lookupPostcode = lookupPostcode;
 
 async function placeOrder() {
   var fn = document.getElementById('firstName').value.trim();
