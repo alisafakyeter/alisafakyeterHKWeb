@@ -127,7 +127,7 @@
     <p class="form-section-label">Password</p>
     <div class="form-group">
       <label>Password</label>
-      <div class="input-wrap"><i class="ti ti-lock"></i><input type="password" id="signupPassword" placeholder="Min. 6 characters" /></div>
+      <div class="input-wrap"><i class="ti ti-lock"></i><input type="password" id="signupPassword" placeholder="Min. 8 chars, upper, lower, number, symbol" /></div>
     </div>
     <div class="form-group">
       <label>Confirm password</label>
@@ -210,8 +210,20 @@
     var btn = document.querySelector('.submit-btn');
 
     errEl.classList.remove('show');
+    // Required fields
     if (!first || !email || !phone || !password) { errEl.textContent='Please fill in all required fields.'; errEl.classList.add('show'); return; }
-    if (password.length < 6) { errEl.textContent='Password must be at least 6 characters.'; errEl.classList.add('show'); return; }
+
+    // Phone validation - UK/international format
+    var phoneClean = phone.replace(/\s/g, '');
+    var phoneValid = /^(\+44|0044|0)[1-9]\d{8,9}$/.test(phoneClean) || /^\+[1-9]\d{7,14}$/.test(phoneClean);
+    if (!phoneValid) { errEl.textContent='Please enter a valid phone number (e.g. 07700 000000 or +44 7700 000000).'; errEl.classList.add('show'); return; }
+
+    // Password strength validation
+    if (password.length < 8) { errEl.textContent='Password must be at least 8 characters.'; errEl.classList.add('show'); return; }
+    if (!/[A-Z]/.test(password)) { errEl.textContent='Password must contain at least one uppercase letter.'; errEl.classList.add('show'); return; }
+    if (!/[a-z]/.test(password)) { errEl.textContent='Password must contain at least one lowercase letter.'; errEl.classList.add('show'); return; }
+    if (!/[0-9]/.test(password)) { errEl.textContent='Password must contain at least one number.'; errEl.classList.add('show'); return; }
+    if (!/[^A-Za-z0-9]/.test(password)) { errEl.textContent='Password must contain at least one special character (e.g. ! @ # $).'; errEl.classList.add('show'); return; }
     if (password !== confirm) { errEl.textContent='Passwords do not match.'; errEl.classList.add('show'); return; }
 
     btn.textContent = 'Creating account...';
@@ -256,6 +268,23 @@
     requestAnimationFrame(draw);
   }
   draw();
+</script>
+
+<script>
+  // Update nav based on login state
+  (function() {
+    var user = sessionStorage.getItem('hk_user');
+    var loginLink = document.querySelector('.nav-links a[href="login.html"]');
+    var mobileLoginLink = document.querySelector('.mobile-nav a[href="login.html"]');
+    if (user && loginLink) {
+      loginLink.textContent = 'Profile';
+      loginLink.href = 'account.html';
+    }
+    if (user && mobileLoginLink) {
+      mobileLoginLink.textContent = 'Profile';
+      mobileLoginLink.href = 'account.html';
+    }
+  })();
 </script>
 </body>
 </html>

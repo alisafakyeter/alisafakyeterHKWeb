@@ -581,5 +581,22 @@
     }
   </script>
 
+
+<script>
+  // Update nav based on login state
+  (function() {
+    var user = sessionStorage.getItem('hk_user');
+    var loginLink = document.querySelector('.nav-links a[href="login.html"]');
+    var mobileLoginLink = document.querySelector('.mobile-nav a[href="login.html"]');
+    if (user && loginLink) {
+      loginLink.textContent = 'Profile';
+      loginLink.href = 'account.html';
+    }
+    if (user && mobileLoginLink) {
+      mobileLoginLink.textContent = 'Profile';
+      mobileLoginLink.href = 'account.html';
+    }
+  })();
+</script>
 </body>
 </html>

@@ -1071,10 +1071,19 @@ async function placeOrder() {
   var postcode = document.getElementById('postcode').value.trim();
 
   if (!fn || !phone || !email || !payment) { alert('Please fill in your name, phone, email and payment method.'); return; }
-  if (orderType === 'delivery' && (!addr1 || !city || !postcode)) {
-    alert('Please enter your full delivery address (street, city and postcode) before placing your order.');
-    document.getElementById('addr1').focus();
-    return;
+
+  // Phone validation
+  var phoneClean = phone.replace(/\s/g, '');
+  var phoneValid = /(\+44|0044|0)[1-9]\d{8,9}$/.test(phoneClean) || /^\+[1-9]\d{7,14}$/.test(phoneClean);
+  if (!phoneValid) { alert('Please enter a valid UK phone number (e.g. 07700 000000 or +44 7700 000000).'); document.getElementById('phone').focus(); return; }
+
+  // Delivery address validation
+  if (orderType === 'delivery') {
+    if (!addr1 || addr1.length < 5) { alert('Please enter a valid street address (at least 5 characters).'); document.getElementById('addr1').focus(); return; }
+    if (!city || city.length < 2) { alert('Please enter a valid city.'); document.getElementById('city').focus(); return; }
+    // UK postcode validation
+    var postcodeClean = postcode.replace(/\s/g, '').toUpperCase();
+    if (!/^[A-Z]{1,2}[0-9][0-9A-Z]?[0-9][A-Z]{2}$/.test(postcodeClean)) { alert('Please enter a valid UK postcode (e.g. CB1 1AA).'); document.getElementById('postcode').focus(); return; }
   }
 
   var profile = {
@@ -1213,6 +1222,23 @@ renderBasket();
   }
 })();
 
+</script>
+
+<script>
+  // Update nav based on login state
+  (function() {
+    var user = sessionStorage.getItem('hk_user');
+    var loginLink = document.querySelector('.nav-links a[href="login.html"]');
+    var mobileLoginLink = document.querySelector('.mobile-nav a[href="login.html"]');
+    if (user && loginLink) {
+      loginLink.textContent = 'Profile';
+      loginLink.href = 'account.html';
+    }
+    if (user && mobileLoginLink) {
+      mobileLoginLink.textContent = 'Profile';
+      mobileLoginLink.href = 'account.html';
+    }
+  })();
 </script>
 </body>
 </html>
