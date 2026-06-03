@@ -983,7 +983,14 @@ function setOrderType(type, btn) {
 }
 
 function toggleBasket() {
-  document.getElementById('basketPanel').classList.toggle('open');
+  var panel = document.getElementById('basketPanel');
+  panel.classList.toggle('open');
+  // On mobile, scroll to basket panel after opening
+  if (panel.classList.contains('open')) {
+    setTimeout(function() {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
 }
 
 // ── TABS ──
@@ -1132,7 +1139,13 @@ async function placeOrder() {
 window.placeOrder = placeOrder;
 
 // ── NAV ──
-function toggleNav() { document.getElementById('mobileNav').classList.toggle('open'); }
+function toggleNav() {
+  var nav = document.getElementById('mobileNav');
+  nav.classList.toggle('open');
+  if (nav.classList.contains('open')) {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
 document.querySelectorAll('.mobile-nav a').forEach(function(l) {
   l.addEventListener('click', function() { document.getElementById('mobileNav').classList.remove('open'); });
 });

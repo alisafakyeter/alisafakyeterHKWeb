@@ -130,7 +130,7 @@
   <p>© 2026 Hungry Kebab · Cambridge</p>
 </footer>
 
-<script>
+<script type="module">
   // Redirect if already logged in
   if (sessionStorage.getItem('hk_user')) window.location.href = 'account.html';
 
@@ -142,21 +142,45 @@
 
   function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
 
-  function handleLogin() {
+  // Supabase login
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+  const supabase = createClient(
+    'https://czjpfrdyjdrpupuwqgcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
+  );
+
+  window.handleLogin = async function() {
     var email = document.getElementById('loginEmail').value.trim();
     var password = document.getElementById('loginPassword').value;
     var errEl = document.getElementById('loginError');
-
-    if (!email || !password) { errEl.classList.add('show'); errEl.textContent = 'Please fill in all fields.'; return; }
-
-    var users = JSON.parse(localStorage.getItem('hk_users') || '[]');
-    var user = users.find(function(u) { return u.email === email && u.password === password; });
-
-    if (!user) { errEl.classList.add('show'); return; }
+    var btn = document.querySelector('.submit-btn');
 
     errEl.classList.remove('show');
-    sessionStorage.setItem('hk_user', JSON.stringify(user));
-    // Redirect back to order page if they came from checkout
+    if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
+
+    btn.textContent = 'Logging in...';
+    btn.disabled = true;
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      errEl.textContent = 'Incorrect email or password. Please try again.';
+      errEl.classList.add('show');
+      btn.textContent = 'Login';
+      btn.disabled = false;
+      return;
+    }
+
+    const { data: profile } = await supabase.from('users').select('*').eq('id', data.user.id).single();
+
+    sessionStorage.setItem('hk_user', JSON.stringify({
+      id: data.user.id,
+      email: data.user.email,
+      firstName: profile ? profile.name.split(' ')[0] : '',
+      lastName: profile ? profile.name.split(' ').slice(1).join(' ') : '',
+      phone: profile ? profile.phone : ''
+    }));
+
     var params = new URLSearchParams(window.location.search);
     var next = params.get('next') || 'account.html';
     window.location.href = next;
