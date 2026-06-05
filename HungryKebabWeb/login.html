@@ -116,6 +116,8 @@
 
     <button class="submit-btn" onclick="handleLogin()">Login</button>
 
+    <p class="auth-link" style="margin-top:1rem;"><a href="#" onclick="handleForgotPassword(); return false;">Forgot password?</a></p>
+
     <div class="auth-divider"><span>or</span></div>
     <p class="auth-link">Don't have an account? <a href="signup.html">Create one</a></p>
   </div>
@@ -130,7 +132,13 @@
   <p>© 2026 Hungry Kebab · Cambridge</p>
 </footer>
 
-<script>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient(
+    'https://czjpfrdyjdrpupuwqgcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
+  )
+
   // Redirect if already logged in
   if (sessionStorage.getItem('hk_user')) window.location.href = 'account.html';
 
@@ -141,25 +149,66 @@
   }
 
   function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
+  window.toggleNav = toggleNav;
 
-  function handleLogin() {
+  window.handleLogin = async function() {
     var email = document.getElementById('loginEmail').value.trim();
     var password = document.getElementById('loginPassword').value;
     var errEl = document.getElementById('loginError');
-
-    if (!email || !password) { errEl.classList.add('show'); errEl.textContent = 'Please fill in all fields.'; return; }
-
-    var users = JSON.parse(localStorage.getItem('hk_users') || '[]');
-    var user = users.find(function(u) { return u.email === email && u.password === password; });
-
-    if (!user) { errEl.classList.add('show'); return; }
+    var btn = document.querySelector('.submit-btn');
 
     errEl.classList.remove('show');
-    sessionStorage.setItem('hk_user', JSON.stringify(user));
-    // Redirect back to order page if they came from checkout
-    var params = new URLSearchParams(window.location.search);
+    if (!email || !password) { errEl.textContent = 'Please fill in all fields.'; errEl.classList.add('show'); return; }
+
+    btn.textContent = 'Logging in...';
+    btn.disabled = true;
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      // Distinguish unconfirmed email from wrong credentials
+      if (error.message && error.message.toLowerCase().includes('confirm')) {
+        errEl.textContent = 'Please confirm your email first. Check your inbox for the confirmation link.';
+      } else {
+        errEl.textContent = 'Incorrect email or password. Please try again.';
+      }
+      errEl.classList.add('show');
+      btn.textContent = 'Login';
+      btn.disabled = false;
+      return;
+    }
+
+    // Fetch profile from users table
+    const { data: profile } = await supabase.from('users').select('*').eq('id', data.user.id).single();
+
+    sessionStorage.setItem('hk_user', JSON.stringify({
+      id: data.user.id,
+      email: data.user.email,
+      firstName: profile && profile.name ? profile.name.split(' ')[0] : '',
+      lastName: profile && profile.name ? profile.name.split(' ').slice(1).join(' ') : '',
+      phone: profile ? profile.phone : ''
+    }));
+
     var next = params.get('next') || 'account.html';
     window.location.href = next;
+  }
+
+  window.handleForgotPassword = async function() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var errEl = document.getElementById('loginError');
+    errEl.classList.remove('show');
+    if (!email) {
+      errEl.style.color = '#e74c3c';
+      errEl.textContent = 'Enter your email above first, then click Forgot password.';
+      errEl.classList.add('show');
+      return;
+    }
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/reset.html'
+    });
+    errEl.style.color = '#27ae60';
+    errEl.textContent = 'If an account exists for that email, a reset link has been sent. Check your inbox.';
+    errEl.classList.add('show');
   }
 
   // Constellation canvas

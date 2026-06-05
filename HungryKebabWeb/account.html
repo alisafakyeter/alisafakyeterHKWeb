@@ -249,12 +249,44 @@
   <p>© 2026 Hungry Kebab · Cambridge</p>
 </footer>
 
-<script>
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient(
+    'https://czjpfrdyjdrpupuwqgcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
+  )
+
   // Redirect if not logged in
   var user = JSON.parse(sessionStorage.getItem('hk_user') || 'null');
   if (!user) window.location.href = 'login.html';
 
+  // Merge any locally-saved profile (address/prefs) into user object for display
+  var localProfile = JSON.parse(localStorage.getItem('hk_profile') || '{}');
+  if (user) {
+    ['addr1','addr2','city','postcode','orderType','paymentMethod'].forEach(function(k){
+      if (!user[k] && localProfile[k]) user[k] = localProfile[k];
+    });
+  }
+
+  // Pull latest profile from Supabase so details work across devices
+  async function syncFromSupabase() {
+    if (!user || !user.id) return;
+    try {
+      const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
+      if (profile) {
+        if (profile.name) {
+          user.firstName = profile.name.split(' ')[0];
+          user.lastName = profile.name.split(' ').slice(1).join(' ');
+        }
+        if (profile.phone) user.phone = profile.phone;
+        sessionStorage.setItem('hk_user', JSON.stringify(user));
+        populateAccount();
+      }
+    } catch(e) { /* offline or no row yet - fall back to local data */ }
+  }
+
   function toggleNav() { var nav = document.getElementById('mobileNav'); nav.classList.toggle('open'); if (nav.classList.contains('open')) { window.scrollTo({ top: 0, behavior: 'smooth' }); } }
+  window.toggleNav = toggleNav;
 
   // ── POPULATE ACCOUNT ──
   function populateAccount() {
@@ -327,20 +359,39 @@
     sessionStorage.setItem('hk_user', JSON.stringify(user));
   }
 
-  function saveDetails() {
-    updateUser({ firstName:document.getElementById('accFirst').value, lastName:document.getElementById('accLast').value, email:document.getElementById('accEmail').value, phone:document.getElementById('accPhone').value });
+  async function saveDetails() {
+    var fn = document.getElementById('accFirst').value;
+    var ln = document.getElementById('accLast').value;
+    var ph = document.getElementById('accPhone').value;
+    updateUser({ firstName:fn, lastName:ln, email:document.getElementById('accEmail').value, phone:ph });
+    // Write name + phone back to Supabase
+    if (user && user.id) {
+      await supabase.from('users').update({ name: (fn + ' ' + ln).trim(), phone: ph }).eq('id', user.id);
+    }
     flashSaved('detailsSaved');
   }
+  window.saveDetails = saveDetails;
 
   function savePreferences() {
-    updateUser({ orderType:document.getElementById('accOrderType').value, paymentMethod:document.getElementById('accPayment').value });
+    var p = { orderType:document.getElementById('accOrderType').value, paymentMethod:document.getElementById('accPayment').value };
+    updateUser(p);
+    var prof = JSON.parse(localStorage.getItem('hk_profile') || '{}');
+    Object.assign(prof, p);
+    localStorage.setItem('hk_profile', JSON.stringify(prof));
     flashSaved('prefsSaved');
   }
+  window.savePreferences = savePreferences;
 
   function saveAddress() {
-    updateUser({ addr1:document.getElementById('accAddr1').value, addr2:document.getElementById('accAddr2').value, city:document.getElementById('accCity').value, postcode:document.getElementById('accPostcode').value });
+    var a = { addr1:document.getElementById('accAddr1').value, addr2:document.getElementById('accAddr2').value, city:document.getElementById('accCity').value, postcode:document.getElementById('accPostcode').value };
+    updateUser(a);
+    // Keep hk_profile in sync so checkout prefills correctly
+    var prof = JSON.parse(localStorage.getItem('hk_profile') || '{}');
+    Object.assign(prof, a);
+    localStorage.setItem('hk_profile', JSON.stringify(prof));
     flashSaved('addrSaved');
   }
+  window.saveAddress = saveAddress;
 
   function flashSaved(id) {
     var el = document.getElementById(id);
@@ -362,12 +413,18 @@
     btn.classList.add('active');
   }
 
-  function signOut() {
+  async function signOut() {
+    try { await supabase.auth.signOut(); } catch(e) {}
     sessionStorage.removeItem('hk_user');
     window.location.href = 'login.html';
   }
+  window.signOut = signOut;
+
+  window.showPanel = showPanel;
+  window.reorder = reorder;
 
   populateAccount();
+  syncFromSupabase();
 
   // Constellation
   var canvas = document.getElementById('constellationCanvas');

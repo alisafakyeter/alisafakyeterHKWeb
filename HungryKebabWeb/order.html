@@ -505,13 +505,16 @@
   <p>© 2026 Hungry Kebab · Cambridge</p>
 </footer>
 
+<!-- Load Supabase separately so a CDN hiccup can never block the menu from rendering -->
 <script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
-const supabase = createClient(
-  'https://czjpfrdyjdrpupuwqgcx.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
-)
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  window.hkSupabase = createClient(
+    'https://czjpfrdyjdrpupuwqgcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
+  )
+</script>
 
+<script>
 // ── FULL MENU DATA (from official 2026 menu) ──
 var menuData = {
   kebabs: {
@@ -714,13 +717,19 @@ function animateBokeh() {
 animateBokeh();
 
 // ── OPEN INDICATOR ──
-function checkOpen() {
+// Single source of truth for opening hours: 4PM (16:00) to midnight (00:00)
+function isVanOpen() {
   var h = new Date().getHours();
-  var isOpen = h >= 16 || h < 1;
-  document.getElementById('openDot').className = 'open-dot ' + (isOpen?'open':'closed');
-  document.getElementById('openText').textContent = isOpen ? 'Open now — closes midnight' : 'Opens at 4:00 PM today';
+  return h >= 16; // open 16:00–23:59
+}
+function checkOpen() {
+  var open = isVanOpen();
+  document.getElementById('openDot').className = 'open-dot ' + (open?'open':'closed');
+  document.getElementById('openText').textContent = open ? 'Open now — closes midnight' : 'Opens at 4:00 PM today';
 }
 checkOpen();
+// Re-check every minute so the status flips automatically at opening/closing
+setInterval(checkOpen, 60000);
 
 // ── RENDER MENU ──
 function renderMenus() {
@@ -912,6 +921,8 @@ function glowBasket() {
 }
 
 function renderBasket() {
+  // Persist basket so a page refresh doesn't lose it
+  try { sessionStorage.setItem('hk_basket', JSON.stringify(basket)); } catch(e) {}
   var el = document.getElementById('basketItems');
   var count = basket.reduce(function(a,b) { return a+b.qty; }, 0);
   var subtotal = basket.reduce(function(a,b) { return a+(b.unitPrice*b.qty); }, 0);
@@ -1009,6 +1020,12 @@ function showTab(name, btn) {
 
 // ── CHECKOUT ──
 function openCheckout() {
+  // Don't allow checkout when closed
+  if (!isVanOpen()) {
+    alert("Sorry, we're currently closed. We take orders daily from 4:00 PM until midnight. Please come back during opening hours!");
+    return;
+  }
+
   // Require login before checkout
   var u = JSON.parse(sessionStorage.getItem('hk_user') || '{}');
   if (!u.id) {
@@ -1128,6 +1145,12 @@ async function lookupPostcode() {
 window.lookupPostcode = lookupPostcode;
 
 async function placeOrder() {
+  // Don't accept orders outside opening hours (4PM–midnight)
+  if (!isVanOpen()) {
+    alert("Sorry, we're currently closed. We take orders daily from 4:00 PM until midnight. Please come back during opening hours!");
+    return;
+  }
+
   var fn = document.getElementById('firstName').value.trim();
   var phone = document.getElementById('phone').value.trim();
   var email = document.getElementById('email').value.trim();
@@ -1152,6 +1175,62 @@ async function placeOrder() {
     if (!/^[A-Z]{1,2}[0-9][0-9A-Z]?[0-9][A-Z]{2}$/.test(postcodeClean)) { alert('Please enter a valid UK postcode (e.g. CB1 1AA).'); document.getElementById('postcode').focus(); return; }
   }
 
+  var subtotal = basket.reduce(function(a,b) { return a+(b.unitPrice*b.qty); }, 0);
+  var total = (subtotal+(orderType==='delivery'?2.50:0)).toFixed(2);
+
+  // Must be logged in to order (RLS requires a matching auth user)
+  var user = JSON.parse(sessionStorage.getItem('hk_user') || '{}');
+  if (!user.id) {
+    alert('Please log in again before placing your order.');
+    window.location.href = 'login.html?next=order.html';
+    return;
+  }
+
+  var placeBtn = document.querySelector('.place-order-btn');
+  if (placeBtn) { placeBtn.textContent = 'Placing order...'; placeBtn.disabled = true; }
+
+  // Supabase loads in a separate module; make sure it's ready
+  var supabase = window.hkSupabase;
+  if (!supabase) {
+    if (placeBtn) { placeBtn.textContent = 'Place Order'; placeBtn.disabled = false; }
+    alert('Still connecting to our ordering system — please try again in a few seconds.');
+    return;
+  }
+
+  // Save order to Supabase
+  const { data: orderData, error: orderError } = await supabase.from('orders').insert({
+    user_id: user.id,
+    type: orderType,
+    status: 'Confirmed',
+    total: parseFloat(total),
+    stripe_payment_id: payment === 'cash' ? 'cash' : null
+  }).select().single();
+
+  // If the order failed to save, do NOT show a fake success
+  if (orderError || !orderData) {
+    if (placeBtn) { placeBtn.textContent = 'Place Order'; placeBtn.disabled = false; }
+    alert('Sorry, we could not place your order just now. Please try again in a moment.');
+    console.error('Order insert failed:', orderError);
+    return;
+  }
+
+  // Save each item
+  var itemRows = basket.map(function(b) {
+    return {
+      order_id: orderData.id,
+      item_name: b.name,
+      size: b.size || '',
+      quantity: b.qty,
+      unit_price: b.unitPrice
+    };
+  });
+  const { error: itemsError } = await supabase.from('order_items').insert(itemRows);
+  if (itemsError) { console.error('Order items insert failed:', itemsError); }
+
+  // Use the database row ID as the order number (no collisions)
+  var orderId = 'HK' + String(orderData.id).padStart(5, '0');
+
+  // Save profile for next-time prefill
   var profile = {
     firstName: fn, lastName: document.getElementById('lastName').value,
     phone: phone, email: email, paymentMethod: payment,
@@ -1160,37 +1239,7 @@ async function placeOrder() {
   };
   localStorage.setItem('hk_profile', JSON.stringify(profile));
 
-  var subtotal = basket.reduce(function(a,b) { return a+(b.unitPrice*b.qty); }, 0);
-  var total = (subtotal+(orderType==='delivery'?2.50:0)).toFixed(2);
-
-  // Save order to Supabase
-  var user = JSON.parse(sessionStorage.getItem('hk_user') || '{}');
-  var orderId = 'HK'+Date.now().toString().slice(-6);
-
-  const { data: orderData, error: orderError } = await supabase.from('orders').insert({
-    user_id: user.id || null,
-    type: orderType,
-    status: 'Confirmed',
-    total: parseFloat(total),
-    stripe_payment_id: payment === 'cash' ? 'cash' : null
-  }).select().single();
-
-  if (!orderError && orderData) {
-    // Save each item
-    var itemRows = basket.map(function(b) {
-      return {
-        order_id: orderData.id,
-        item_name: b.name,
-        size: b.size || '',
-        quantity: b.qty,
-        unit_price: b.unitPrice
-      };
-    });
-    await supabase.from('order_items').insert(itemRows);
-    orderId = 'HK' + String(orderData.id).slice(-6);
-  }
-
-  // Save to localStorage per user
+  // Save to localStorage per user (for instant order history display)
   var order = {
     id: orderId,
     date: new Date().toLocaleDateString('en-GB'),
@@ -1198,7 +1247,7 @@ async function placeOrder() {
     items: basket.slice(), total: total,
     type: orderType, status:'Confirmed'
   };
-  var orderKey = 'hk_orders_' + (user.id || 'guest');
+  var orderKey = 'hk_orders_' + user.id;
   var history = JSON.parse(localStorage.getItem(orderKey) || '[]');
   history.unshift(order);
   localStorage.setItem(orderKey, JSON.stringify(history));
@@ -1209,6 +1258,7 @@ async function placeOrder() {
   document.getElementById('orderNumber').textContent = 'Order #' + orderId;
 
   basket = [];
+  sessionStorage.removeItem('hk_basket');
   renderBasket();
 }
 window.placeOrder = placeOrder;
@@ -1241,6 +1291,39 @@ window.setOrderType = setOrderType;
 window.renderMenus = renderMenus;
 
 renderMenus();
+
+// Enable mouse-wheel and click-drag horizontal scrolling on the category tabs
+(function() {
+  var wrap = document.querySelector('.tabs-wrapper');
+  if (!wrap) return;
+  // Vertical wheel scrolls tabs horizontally
+  wrap.addEventListener('wheel', function(e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      wrap.scrollLeft += e.deltaY;
+      e.preventDefault();
+    }
+  }, { passive: false });
+  // Click and drag to scroll
+  var isDown = false, startX, scrollStart;
+  wrap.addEventListener('mousedown', function(e) {
+    isDown = true; startX = e.pageX; scrollStart = wrap.scrollLeft; wrap.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', function() { isDown = false; wrap.style.cursor = ''; });
+  wrap.addEventListener('mousemove', function(e) {
+    if (!isDown) return;
+    e.preventDefault();
+    wrap.scrollLeft = scrollStart - (e.pageX - startX);
+  });
+})();
+
+// Restore basket from a previous session (survives refresh)
+(function() {
+  try {
+    var saved = JSON.parse(sessionStorage.getItem('hk_basket') || 'null');
+    if (saved && saved.length) basket = saved;
+  } catch(e) {}
+})();
+
 renderBasket();
 
 // ── PICK UP REORDER ──

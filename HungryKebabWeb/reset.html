@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Reset Password · Hungry Kebab Cambridge</title>
+  <link rel="icon" href="logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    :root { --gold:#C9A84C; --gold-light:#E8C96A; --gold-dark:#9A7A2E; --black:#0D0D0D; --black-soft:#1A1A1A; --black-card:#222222; --black-border:#2E2E2E; --cream:#F5F0E8; --text-muted:#888; }
+    body { font-family:'DM Sans',sans-serif; font-size:16px; background:var(--black); color:var(--cream); min-height:100vh; overflow-x:clip; }
+
+    nav { display:flex; justify-content:space-between; align-items:center; padding:1.2rem 2.5rem; background:rgba(13,13,13,0.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--black-border); position:sticky; top:0; z-index:100; }
+    .nav-logo { font-family:'Playfair Display',serif; font-size:1.4rem; color:var(--cream); text-decoration:none; display:flex; align-items:center; }
+    .nav-logo span { color:var(--gold); }
+
+    .auth-hero { position:relative; min-height:calc(100vh - 65px); display:flex; align-items:center; justify-content:center; padding:3rem 1.5rem; overflow:hidden; }
+    #constellationCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+
+    .auth-card { position:relative; z-index:1; background:var(--black-soft); border:1px solid var(--black-border); border-radius:16px; padding:2.5rem; width:100%; max-width:420px; animation:cardIn 0.4s ease; }
+    @keyframes cardIn { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+    .auth-card::before { content:''; position:absolute; inset:-1px; border-radius:16px; background:linear-gradient(135deg,rgba(201,168,76,0.15),transparent 50%); z-index:-1; pointer-events:none; }
+
+    .auth-logo { text-align:center; margin-bottom:2rem; }
+    .auth-logo img { height:64px; width:auto; }
+    .auth-title { font-family:'Playfair Display',serif; font-size:1.8rem; color:var(--cream); text-align:center; margin-bottom:0.4rem; }
+    .auth-title em { color:var(--gold); font-style:italic; }
+    .auth-sub { font-size:0.85rem; color:var(--text-muted); text-align:center; margin-bottom:2rem; }
+
+    .form-group { margin-bottom:1.1rem; }
+    .form-group label { display:block; font-size:0.78rem; font-weight:500; color:var(--text-muted); margin-bottom:0.4rem; letter-spacing:0.5px; text-transform:uppercase; }
+    .input-wrap { position:relative; }
+    .input-wrap i { position:absolute; left:0.9rem; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:1rem; pointer-events:none; }
+    .form-group input { width:100%; background:var(--black-card); border:1px solid var(--black-border); border-radius:6px; padding:0.75rem 1rem 0.75rem 2.6rem; color:var(--cream); font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.9rem; outline:none; transition:border-color 0.2s, box-shadow 0.2s; }
+    .form-group input:focus { border-color:var(--gold-dark); box-shadow:0 0 0 3px rgba(201,168,76,0.08); }
+    .form-group input::placeholder { color:var(--text-muted); }
+
+    .msg { font-size:0.82rem; margin-top:0.4rem; display:none; line-height:1.5; }
+    .msg.show { display:block; }
+
+    .submit-btn { width:100%; background:var(--gold); color:var(--black); border:none; border-radius:6px; padding:0.9rem; font-family:'DM Sans',sans-serif; font-size:16px; font-size:0.95rem; font-weight:500; cursor:pointer; transition:background 0.2s, transform 0.1s; margin-top:0.5rem; }
+    .submit-btn:hover { background:var(--gold-light); transform:translateY(-1px); }
+    .submit-btn:disabled { opacity:0.6; cursor:not-allowed; }
+
+    .auth-link { text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:1.2rem; }
+    .auth-link a { color:var(--gold); text-decoration:none; font-weight:500; }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo"><img src="logo.png" alt="Hungry Kebab" style="height:44px;width:auto;margin-right:0.6rem;vertical-align:middle;" />Hungry <span>Kebab</span></a>
+</nav>
+
+<div class="auth-hero">
+  <canvas id="constellationCanvas"></canvas>
+  <div class="auth-card">
+    <div class="auth-logo"><img src="logo.png" alt="Hungry Kebab" /></div>
+    <h1 class="auth-title">Reset <em>password</em></h1>
+    <p class="auth-sub" id="resetSub">Enter your new password below</p>
+
+    <div id="resetForm">
+      <div class="form-group">
+        <label>New password</label>
+        <div class="input-wrap"><i class="ti ti-lock"></i><input type="password" id="newPassword" placeholder="Min. 8 chars, upper, lower, number, symbol" /></div>
+      </div>
+      <div class="form-group">
+        <label>Confirm new password</label>
+        <div class="input-wrap"><i class="ti ti-lock-check"></i><input type="password" id="confirmPassword" placeholder="Repeat new password" /></div>
+      </div>
+      <p class="msg" id="resetMsg"></p>
+      <button class="submit-btn" onclick="handleReset()">Update Password</button>
+    </div>
+
+    <div id="resetDone" style="display:none; text-align:center;">
+      <div style="font-size:3rem; margin-bottom:1rem;">✅</div>
+      <p style="color:var(--cream); font-size:0.95rem; line-height:1.6; margin-bottom:1.5rem;">Your password has been updated. You can now log in with your new password.</p>
+      <a href="login.html" class="submit-btn" style="display:inline-block; text-decoration:none; width:auto; padding:0.9rem 2rem;">Go to Login</a>
+    </div>
+
+    <p class="auth-link" id="backLink">Remembered it? <a href="login.html">Back to login</a></p>
+  </div>
+</div>
+
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
+  const supabase = createClient(
+    'https://czjpfrdyjdrpupuwqgcx.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6anBmcmR5amRycHVwdXdxZ2N4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyMTg4MDcsImV4cCI6MjA5NTc5NDgwN30.03YdNo-3BrAnq6XDVQmMy0jPqEvffuCd7ORYhhchus4'
+  )
+
+  var msgEl = document.getElementById('resetMsg');
+
+  // Supabase puts the recovery token in the URL hash and creates a temporary session.
+  // If there's no recovery session, the link is invalid or expired.
+  (async function() {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      // Give Supabase a moment to process the hash token, then re-check
+      setTimeout(async function() {
+        const { data: d2 } = await supabase.auth.getSession();
+        if (!d2.session) {
+          document.getElementById('resetForm').style.display = 'none';
+          document.getElementById('resetSub').textContent = 'This reset link is invalid or has expired.';
+          document.querySelector('.auth-title').innerHTML = 'Link <em>expired</em>';
+        }
+      }, 800);
+    }
+  })();
+
+  window.handleReset = async function() {
+    var pw = document.getElementById('newPassword').value;
+    var confirm = document.getElementById('confirmPassword').value;
+    var btn = document.querySelector('.submit-btn');
+    msgEl.classList.remove('show');
+
+    // Same password strength rules as signup
+    if (pw.length < 8) { msgEl.style.color='#e74c3c'; msgEl.textContent='Password must be at least 8 characters.'; msgEl.classList.add('show'); return; }
+    if (!/[A-Z]/.test(pw)) { msgEl.style.color='#e74c3c'; msgEl.textContent='Password must contain an uppercase letter.'; msgEl.classList.add('show'); return; }
+    if (!/[a-z]/.test(pw)) { msgEl.style.color='#e74c3c'; msgEl.textContent='Password must contain a lowercase letter.'; msgEl.classList.add('show'); return; }
+    if (!/[0-9]/.test(pw)) { msgEl.style.color='#e74c3c'; msgEl.textContent='Password must contain a number.'; msgEl.classList.add('show'); return; }
+    if (!/[^A-Za-z0-9]/.test(pw)) { msgEl.style.color='#e74c3c'; msgEl.textContent='Password must contain a special character.'; msgEl.classList.add('show'); return; }
+    if (pw !== confirm) { msgEl.style.color='#e74c3c'; msgEl.textContent='Passwords do not match.'; msgEl.classList.add('show'); return; }
+
+    btn.textContent = 'Updating...';
+    btn.disabled = true;
+
+    const { error } = await supabase.auth.updateUser({ password: pw });
+    if (error) {
+      msgEl.style.color='#e74c3c';
+      msgEl.textContent = error.message || 'Could not update password. The link may have expired.';
+      msgEl.classList.add('show');
+      btn.textContent = 'Update Password';
+      btn.disabled = false;
+      return;
+    }
+
+    // Success - sign out the temporary recovery session so they log in fresh
+    await supabase.auth.signOut();
+    sessionStorage.removeItem('hk_user');
+    document.getElementById('resetForm').style.display = 'none';
+    document.getElementById('backLink').style.display = 'none';
+    document.getElementById('resetSub').style.display = 'none';
+    document.getElementById('resetDone').style.display = 'block';
+  }
+
+  // Constellation canvas
+  var canvas = document.getElementById('constellationCanvas');
+  var ctx = canvas.getContext('2d');
+  var stars = [];
+  function resize() { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; }
+  resize(); window.addEventListener('resize', resize);
+  for (var i = 0; i < 60; i++) stars.push({ x:Math.random()*1400, y:Math.random()*900, vx:(Math.random()-0.5)*0.3, vy:(Math.random()-0.5)*0.3, r:Math.random()*1.5+0.5, opacity:Math.random()*0.4+0.1 });
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    stars.forEach(function(s){ s.x+=s.vx; s.y+=s.vy; if(s.x<0)s.x=canvas.width; if(s.x>canvas.width)s.x=0; if(s.y<0)s.y=canvas.height; if(s.y>canvas.height)s.y=0; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fillStyle='rgba(201,168,76,'+s.opacity+')'; ctx.fill(); });
+    for (var i=0;i<stars.length;i++){ for(var j=i+1;j<stars.length;j++){ var dx=stars[i].x-stars[j].x,dy=stars[i].y-stars[j].y,dist=Math.sqrt(dx*dx+dy*dy); if(dist<120){ctx.beginPath();ctx.moveTo(stars[i].x,stars[i].y);ctx.lineTo(stars[j].x,stars[j].y);ctx.strokeStyle='rgba(201,168,76,'+(0.06*(1-dist/120))+')';ctx.lineWidth=0.5;ctx.stroke();}}}
+    requestAnimationFrame(draw);
+  }
+  draw();
+</script>
+</body>
+</html>
